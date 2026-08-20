@@ -43,6 +43,17 @@ describe("community router", () => {
     expect(Array.isArray(result)).toBe(true);
   });
 
+  it("rejects unsafe attachment metadata", async () => {
+    const caller = appRouter.createCaller(createContext(authenticatedUser));
+    await expect(caller.directMessage.send({ recipientId: 2, body: "arquivo", attachment: { key: "x", url: "https://example.com/file", name: "file.pdf", mimeType: "application/pdf", size: 12 } })).rejects.toMatchObject({ code: "BAD_REQUEST" });
+    await expect(caller.directMessage.send({ recipientId: 2, body: "arquivo", attachment: { key: "x", url: "/manus-storage/x", name: "file.pdf", mimeType: "application/pdf", size: 10 * 1024 * 1024 + 1 } })).rejects.toMatchObject({ code: "BAD_REQUEST" });
+  });
+
+  it("rejects attachments owned by another session", async () => {
+    const caller = appRouter.createCaller(createContext(authenticatedUser));
+    await expect(caller.directMessage.send({ recipientId: 2, body: "arquivo", attachment: { id: 999999, key: "x", url: "/manus-storage/x", name: "file.pdf", mimeType: "application/pdf", size: 12 } })).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
+
   it("protects message editing and deletion", async () => {
     const anonymousCaller = appRouter.createCaller(createContext());
     await expect(anonymousCaller.message.update({ messageId: 1, body: "novo texto" })).rejects.toMatchObject({ code: "UNAUTHORIZED" });

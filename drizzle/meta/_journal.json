@@ -29,6 +29,20 @@
       "when": 1787191511561,
       "tag": "0003_wealthy_lady_mastermind",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1787217946407,
+      "tag": "0004_lush_pete_wisdom",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1787218477827,
+      "tag": "0005_tidy_sharon_carter",
+      "breakpoints": true
     }
   ]
 }

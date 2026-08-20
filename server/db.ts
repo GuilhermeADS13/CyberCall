@@ -1,6 +1,6 @@
 import { and, asc, desc, eq, or } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { communities, communityMembers, channels, directMessages, InsertUser, messageReactions, messages, notifications, users } from "../drizzle/schema";
+import { attachments, communities, communityMembers, channels, directMessages, InsertUser, messageReactions, messages, notifications, users } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -109,7 +109,7 @@ export async function getCommunityOverview(communityId: number) {
 export async function listMessages(channelId: number, viewerId = 0) {
   const db = await getDb();
   if (!db) return [];
-  const rows = await db.select({ id: messages.id, channelId: messages.channelId, authorId: messages.authorId, body: messages.body, createdAt: messages.createdAt, editedAt: messages.editedAt, authorName: users.name }).from(messages).innerJoin(users, eq(users.id, messages.authorId)).where(eq(messages.channelId, channelId)).orderBy(asc(messages.createdAt)).limit(100);
+  const rows = await db.select({ id: messages.id, channelId: messages.channelId, authorId: messages.authorId, body: messages.body, attachmentKey: messages.attachmentKey, attachmentUrl: messages.attachmentUrl, attachmentName: messages.attachmentName, attachmentMimeType: messages.attachmentMimeType, attachmentSize: messages.attachmentSize, createdAt: messages.createdAt, editedAt: messages.editedAt, authorName: users.name }).from(messages).innerJoin(users, eq(users.id, messages.authorId)).where(eq(messages.channelId, channelId)).orderBy(asc(messages.createdAt)).limit(100);
   return Promise.all(rows.map(async (row) => {
     const reactions = await db.select({ userId: messageReactions.userId }).from(messageReactions).where(eq(messageReactions.messageId, row.id));
     return { ...row, reactionCount: reactions.length, reactedByMe: reactions.some((reaction) => reaction.userId === viewerId) };
@@ -129,13 +129,30 @@ export async function createCommunity(ownerId: number, name: string, description
   return created[0];
 }
 
-export async function createMessage(channelId: number, authorId: number, body: string) {
+export type AttachmentMeta = { id?: number; key: string; url: string; name: string; mimeType: string; size: number };
+
+export async function createAttachment(ownerId: number, attachment: Omit<AttachmentMeta, "id">) {
   const db = await getDb();
   if (!db) throw new Error("Database unavailable");
-  const result = await db.insert(messages).values({ channelId, authorId, body }).$returningId();
+  const result = await db.insert(attachments).values({ ownerId, key: attachment.key, url: attachment.url, name: attachment.name, mimeType: attachment.mimeType, size: attachment.size }).$returningId();
+  if (!result[0]?.id) throw new Error("Attachment record creation failed");
+  return { id: result[0].id, ...attachment };
+}
+
+export async function getOwnedAttachment(attachmentId: number, ownerId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  const result = await db.select().from(attachments).where(and(eq(attachments.id, attachmentId), eq(attachments.ownerId, ownerId))).limit(1);
+  return result[0];
+}
+
+export async function createMessage(channelId: number, authorId: number, body: string, attachment?: AttachmentMeta) {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  const result = await db.insert(messages).values({ channelId, authorId, body, attachmentKey: attachment?.key, attachmentUrl: attachment?.url, attachmentName: attachment?.name, attachmentMimeType: attachment?.mimeType, attachmentSize: attachment?.size }).$returningId();
   const messageId = result[0]?.id;
   if (!messageId) throw new Error("Message creation failed");
-  return (await db.select({ id: messages.id, channelId: messages.channelId, authorId: messages.authorId, body: messages.body, createdAt: messages.createdAt, editedAt: messages.editedAt, authorName: users.name }).from(messages).innerJoin(users, eq(users.id, messages.authorId)).where(eq(messages.id, messageId)).limit(1))[0];
+  return (await db.select({ id: messages.id, channelId: messages.channelId, authorId: messages.authorId, body: messages.body, attachmentKey: messages.attachmentKey, attachmentUrl: messages.attachmentUrl, attachmentName: messages.attachmentName, attachmentMimeType: messages.attachmentMimeType, attachmentSize: messages.attachmentSize, createdAt: messages.createdAt, editedAt: messages.editedAt, authorName: users.name }).from(messages).innerJoin(users, eq(users.id, messages.authorId)).where(eq(messages.id, messageId)).limit(1))[0];
 }
 
 export async function updateMessage(messageId: number, authorId: number, body: string) {
@@ -159,17 +176,17 @@ export async function deleteMessage(messageId: number, authorId: number) {
 export async function listDirectMessages(userId: number, otherUserId: number) {
   const db = await getDb();
   if (!db) return [];
-  return db.select({ id: directMessages.id, senderId: directMessages.senderId, recipientId: directMessages.recipientId, body: directMessages.body, createdAt: directMessages.createdAt, readAt: directMessages.readAt, senderName: users.name }).from(directMessages).innerJoin(users, eq(users.id, directMessages.senderId)).where(or(and(eq(directMessages.senderId, userId), eq(directMessages.recipientId, otherUserId)), and(eq(directMessages.senderId, otherUserId), eq(directMessages.recipientId, userId)))).orderBy(asc(directMessages.createdAt)).limit(100);
+  return db.select({ id: directMessages.id, senderId: directMessages.senderId, recipientId: directMessages.recipientId, body: directMessages.body, attachmentKey: directMessages.attachmentKey, attachmentUrl: directMessages.attachmentUrl, attachmentName: directMessages.attachmentName, attachmentMimeType: directMessages.attachmentMimeType, attachmentSize: directMessages.attachmentSize, createdAt: directMessages.createdAt, readAt: directMessages.readAt, senderName: users.name }).from(directMessages).innerJoin(users, eq(users.id, directMessages.senderId)).where(or(and(eq(directMessages.senderId, userId), eq(directMessages.recipientId, otherUserId)), and(eq(directMessages.senderId, otherUserId), eq(directMessages.recipientId, userId)))).orderBy(asc(directMessages.createdAt)).limit(100);
 }
 
-export async function createDirectMessage(senderId: number, recipientId: number, body: string) {
+export async function createDirectMessage(senderId: number, recipientId: number, body: string, attachment?: AttachmentMeta) {
   const db = await getDb();
   if (!db) throw new Error("Database unavailable");
-  const result = await db.insert(directMessages).values({ senderId, recipientId, body }).$returningId();
+  const result = await db.insert(directMessages).values({ senderId, recipientId, body, attachmentKey: attachment?.key, attachmentUrl: attachment?.url, attachmentName: attachment?.name, attachmentMimeType: attachment?.mimeType, attachmentSize: attachment?.size }).$returningId();
   const messageId = result[0]?.id;
   if (!messageId) throw new Error("Direct message creation failed");
   await db.insert(notifications).values({ userId: recipientId, kind: "direct_message", title: "Novo sinal privado", body: "Você recebeu uma nova mensagem direta na Cyperpuck." });
-  return (await db.select({ id: directMessages.id, senderId: directMessages.senderId, recipientId: directMessages.recipientId, body: directMessages.body, createdAt: directMessages.createdAt, readAt: directMessages.readAt, senderName: users.name }).from(directMessages).innerJoin(users, eq(users.id, directMessages.senderId)).where(eq(directMessages.id, messageId)).limit(1))[0];
+  return (await db.select({ id: directMessages.id, senderId: directMessages.senderId, recipientId: directMessages.recipientId, body: directMessages.body, attachmentKey: directMessages.attachmentKey, attachmentUrl: directMessages.attachmentUrl, attachmentName: directMessages.attachmentName, attachmentMimeType: directMessages.attachmentMimeType, attachmentSize: directMessages.attachmentSize, createdAt: directMessages.createdAt, readAt: directMessages.readAt, senderName: users.name }).from(directMessages).innerJoin(users, eq(users.id, directMessages.senderId)).where(eq(directMessages.id, messageId)).limit(1))[0];
 }
 
 export async function listNotifications(userId: number) {

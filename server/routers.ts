@@ -4,7 +4,9 @@ import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { createCommunity, createDirectMessage, createMessage, deleteMessage, getCommunityOverview, isCommunityMember, listCommunities, listDirectMessages, listMessages, listNotifications, markNotificationRead, toggleMessageReaction, updateMessage } from "./db";
+import { createCommunity, createDirectMessage, createMessage, deleteMessage, getCommunityOverview, getOwnedAttachment, isCommunityMember, listCommunities, listDirectMessages, listMessages, listNotifications, markNotificationRead, toggleMessageReaction, updateMessage } from "./db";
+
+const attachmentInput = z.object({ id: z.number().int().positive(), key: z.string().min(1).max(512), url: z.string().startsWith("/manus-storage/").max(768), name: z.string().min(1).max(255), mimeType: z.string().min(1).max(120), size: z.number().int().positive().max(10 * 1024 * 1024) }).optional();
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -39,7 +41,11 @@ export const appRouter = router({
 
   directMessage: router({
     list: protectedProcedure.input(z.object({ otherUserId: z.number().int().positive() })).query(({ ctx, input }) => listDirectMessages(ctx.user.id, input.otherUserId)),
-    send: protectedProcedure.input(z.object({ recipientId: z.number().int().positive(), body: z.string().trim().min(1).max(4000) })).mutation(({ ctx, input }) => createDirectMessage(ctx.user.id, input.recipientId, input.body)),
+    send: protectedProcedure.input(z.object({ recipientId: z.number().int().positive(), body: z.string().trim().min(1).max(4000), attachment: attachmentInput })).mutation(async ({ ctx, input }) => {
+      const attachment = input.attachment ? await getOwnedAttachment(input.attachment.id, ctx.user.id) : undefined;
+      if (input.attachment && !attachment) throw new TRPCError({ code: "FORBIDDEN", message: "Este anexo não pertence à sua sessão." });
+      return createDirectMessage(ctx.user.id, input.recipientId, input.body, attachment);
+    }),
   }),
 
   community: router({
@@ -47,10 +53,12 @@ export const appRouter = router({
     overview: publicProcedure.input(z.object({ communityId: z.number().int().positive() })).query(({ input }) => getCommunityOverview(input.communityId)),
     messages: publicProcedure.input(z.object({ channelId: z.number().int().positive() })).query(({ ctx, input }) => listMessages(input.channelId, ctx.user?.id ?? 0)),
     create: protectedProcedure.input(z.object({ name: z.string().min(2).max(120), description: z.string().max(500).optional() })).mutation(({ ctx, input }) => createCommunity(ctx.user.id, input.name, input.description)),
-    sendMessage: protectedProcedure.input(z.object({ communityId: z.number().int().positive(), channelId: z.number().int().positive(), body: z.string().trim().min(1).max(4000) })).mutation(async ({ ctx, input }) => {
+    sendMessage: protectedProcedure.input(z.object({ communityId: z.number().int().positive(), channelId: z.number().int().positive(), body: z.string().trim().min(1).max(4000), attachment: attachmentInput })).mutation(async ({ ctx, input }) => {
       const member = await isCommunityMember(input.communityId, ctx.user.id);
       if (!member) throw new TRPCError({ code: "FORBIDDEN", message: "Você precisa entrar nesta comunidade." });
-      return createMessage(input.channelId, ctx.user.id, input.body);
+      const attachment = input.attachment ? await getOwnedAttachment(input.attachment.id, ctx.user.id) : undefined;
+      if (input.attachment && !attachment) throw new TRPCError({ code: "FORBIDDEN", message: "Este anexo não pertence à sua sessão." });
+      return createMessage(input.channelId, ctx.user.id, input.body, attachment);
     }),
   }),
 });

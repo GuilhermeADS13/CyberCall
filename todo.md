@@ -14,3 +14,12 @@
 - [x] Adicionar exclusão persistida de mensagens com autorização do autor.
 - [x] Conectar controles de editar/excluir à interface com confirmação e marcador “editado”.
 - [x] Adicionar testes de permissão e validar tipos, testes, build e responsividade.
+- [x] Definir formatos, tamanho máximo e estados de upload para anexos.
+- [x] Adicionar persistência de metadados e armazenamento seguro dos anexos.
+- [x] Implementar upload de imagens e arquivos com pré-visualização de imagens.
+- [x] Validar acesso, erros, responsividade, testes e build.
+- [x] Analisar a referência oficial de Cyberpunk e registrar princípios visuais reutilizáveis sem copiar conteúdo proprietário.
+- [x] Reorientar a interface Cyperpuck para uma experiência neon/cinematográfica própria.
+- [x] Concluir o fluxo de upload e persistência de anexos com pré-visualização de imagens.
+- [x] Reforçar segurança de uploads, autenticação, autorização, limites, MIME e abuso.
+- [x] Validar a nova experiência em desktop/mobile e salvar checkpoint.

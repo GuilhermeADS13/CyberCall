@@ -58,7 +58,23 @@ export const directMessages = mysqlTable("directMessages", {
   senderId: int("senderId").notNull(),
   recipientId: int("recipientId").notNull(),
   body: text("body").notNull(),
+  attachmentKey: varchar("attachmentKey", { length: 512 }),
+  attachmentUrl: varchar("attachmentUrl", { length: 768 }),
+  attachmentName: varchar("attachmentName", { length: 255 }),
+  attachmentMimeType: varchar("attachmentMimeType", { length: 120 }),
+  attachmentSize: int("attachmentSize"),
   readAt: timestamp("readAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export const attachments = mysqlTable("attachments", {
+  id: int("id").autoincrement().primaryKey(),
+  ownerId: int("ownerId").notNull(),
+  key: varchar("key", { length: 512 }).notNull().unique(),
+  url: varchar("url", { length: 768 }).notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  mimeType: varchar("mimeType", { length: 120 }).notNull(),
+  size: int("size").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
@@ -85,6 +101,11 @@ export const messages = mysqlTable("messages", {
   channelId: int("channelId").notNull(),
   authorId: int("authorId").notNull(),
   body: text("body").notNull(),
+  attachmentKey: varchar("attachmentKey", { length: 512 }),
+  attachmentUrl: varchar("attachmentUrl", { length: 768 }),
+  attachmentName: varchar("attachmentName", { length: 255 }),
+  attachmentMimeType: varchar("attachmentMimeType", { length: 120 }),
+  attachmentSize: int("attachmentSize"),
   editedAt: timestamp("editedAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
