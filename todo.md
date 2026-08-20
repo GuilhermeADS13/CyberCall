@@ -353,4 +353,4 @@
 - [x] Criar barra/modal de busca global com resultados agrupados.
 - [x] Adicionar atalhos `/` e `Ctrl/Cmd+K`, foco inicial e navegação por teclado.
 - [x] Validar acessibilidade, desktop/mobile, testes, build e integração com navegação.
-- [ ] Publicar no GitHub e salvar checkpoint.
+- [x] Publicar no GitHub no commit `22f8794`; checkpoint final pendente.
