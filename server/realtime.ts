@@ -9,7 +9,7 @@ export const realtimePath = "/api/realtime";
 
 export type RealtimeEvent = {
   id: string;
-  type: "message.created" | "message.updated" | "message.deleted" | "dm.created" | "presence.updated" | "voice.members" | "voice.peer.joined" | "voice.peer.left" | "voice.offer" | "voice.answer" | "voice.ice" | "voice.chat" | "voice.typing";
+  type: "message.created" | "message.updated" | "message.deleted" | "dm.created" | "presence.updated" | "voice.members" | "voice.peer.joined" | "voice.peer.left" | "voice.offer" | "voice.answer" | "voice.ice" | "voice.chat" | "voice.chat.updated" | "voice.chat.deleted" | "voice.typing";
   occurredAt: number;
   scope: { communityId?: number; channelId?: number; roomKey?: string; userIds?: number[] };
   payload: unknown;
@@ -27,6 +27,8 @@ type RealtimeCommand =
   | { type: "voice.offer" | "voice.answer"; channelId: number; roomKey: string; targetUserId: number; sdp: { type: string; sdp: string } }
   | { type: "voice.ice"; channelId: number; roomKey: string; targetUserId: number; candidate: Record<string, unknown> }
   | { type: "voice.chat"; channelId: number; roomKey: string; body: string }
+  | { type: "voice.chat.edit"; channelId: number; roomKey: string; messageId: string; body: string }
+  | { type: "voice.chat.delete"; channelId: number; roomKey: string; messageId: string }
   | { type: "voice.typing"; channelId: number; roomKey: string; typing: boolean }
   | { type: "ping" };
 
@@ -39,12 +41,15 @@ const commandSchema = z.discriminatedUnion("type", [
   z.object({ type: z.union([z.literal("voice.offer"), z.literal("voice.answer")]), channelId: z.number().int().positive(), roomKey: z.string().min(1).max(120), targetUserId: z.number().int().positive(), sdp: z.object({ type: z.string().min(1).max(32), sdp: z.string().min(1).max(200_000) }) }),
   z.object({ type: z.literal("voice.ice"), channelId: z.number().int().positive(), roomKey: z.string().min(1).max(120), targetUserId: z.number().int().positive(), candidate: z.record(z.string(), z.unknown()) }),
   z.object({ type: z.literal("voice.chat"), channelId: z.number().int().positive(), roomKey: z.string().min(1).max(120), body: z.string().trim().min(1).max(2000) }),
+  z.object({ type: z.literal("voice.chat.edit"), channelId: z.number().int().positive(), roomKey: z.string().min(1).max(120), messageId: z.string().min(1).max(120), body: z.string().trim().min(1).max(2000) }),
+  z.object({ type: z.literal("voice.chat.delete"), channelId: z.number().int().positive(), roomKey: z.string().min(1).max(120), messageId: z.string().min(1).max(120) }),
   z.object({ type: z.literal("voice.typing"), channelId: z.number().int().positive(), roomKey: z.string().min(1).max(120), typing: z.boolean() }),
   z.object({ type: z.literal("ping") }),
 ]);
 
 const clients = new Set<RealtimeClient>();
 const voiceRooms = new Map<string, Set<number>>();
+const voiceMessages = new Map<string, Map<string, { id: string; userId: number; authorName: string; body: string; occurredAt: number; editedAt?: number }>>();
 
 export function getBearerTokenFromWebSocketProtocols(protocolHeader: string | string[] | undefined) {
   const protocol = Array.isArray(protocolHeader) ? protocolHeader[0] : protocolHeader;
@@ -89,6 +94,13 @@ function findClientByUserId(userId: number) {
 
 function sendVoiceEvent(socket: WebSocket, type: RealtimeEvent["type"], channelId: number, roomKey: string, payload: unknown) {
   send(socket, { id: nextEventId(), type, occurredAt: Date.now(), scope: { channelId, roomKey }, payload });
+}
+
+function broadcastVoiceChatEvent(roomId: string, channelId: number, roomKey: string, type: RealtimeEvent["type"], payload: unknown) {
+  voiceRooms.get(roomId)?.forEach((userId) => {
+    const peer = findClientByUserId(userId);
+    if (peer) sendVoiceEvent(peer.socket, type, channelId, roomKey, payload);
+  });
 }
 
 function broadcastVoiceChat(roomId: string, channelId: number, roomKey: string, payload: unknown) {
@@ -172,7 +184,7 @@ async function handleCommand(client: RealtimeClient, command: RealtimeCommand) {
     send(client.socket, { type: "presence.ack", payload });
     return;
   }
-  if (command.type === "voice.join" || command.type === "voice.leave" || command.type === "voice.offer" || command.type === "voice.answer" || command.type === "voice.ice" || command.type === "voice.chat" || command.type === "voice.typing") {
+  if (command.type === "voice.join" || command.type === "voice.leave" || command.type === "voice.offer" || command.type === "voice.answer" || command.type === "voice.ice" || command.type === "voice.chat" || command.type === "voice.chat.edit" || command.type === "voice.chat.delete" || command.type === "voice.typing") {
     const communityId = await getChannelCommunityId(command.channelId);
     if (!communityId || !(await isCommunityMember(communityId, client.user.id))) {
       protocolError(client.socket, "Você não pode sinalizar nesta sala.");
@@ -186,6 +198,7 @@ async function handleCommand(client: RealtimeClient, command: RealtimeCommand) {
       voiceRooms.set(roomId, peers);
       client.voiceRooms.add(roomId);
       sendVoiceEvent(client.socket, "voice.members", command.channelId, command.roomKey, { members: voiceMembers(roomId).filter((member) => member.userId !== client.user.id) });
+      voiceMessages.get(roomId)?.forEach((message) => sendVoiceEvent(client.socket, "voice.chat", command.channelId, command.roomKey, message));
       previousPeers.forEach((userId) => {
         const peer = findClientByUserId(userId);
         if (peer) sendVoiceEvent(peer.socket, "voice.peer.joined", command.channelId, command.roomKey, { userId: client.user.id, name: client.user.name || "Piloto" });
@@ -207,12 +220,32 @@ async function handleCommand(client: RealtimeClient, command: RealtimeCommand) {
       broadcastVoiceTyping(roomId, command.channelId, command.roomKey, { userId: client.user.id, authorName: client.user.name || "Piloto", typing: command.typing });
       return;
     }
-    if (command.type === "voice.chat") {
+    if (command.type === "voice.chat" || command.type === "voice.chat.edit" || command.type === "voice.chat.delete") {
       if (!client.voiceRooms.has(roomId)) {
         protocolError(client.socket, "Entre na sala antes de enviar mensagens.");
         return;
       }
-      broadcastVoiceChat(roomId, command.channelId, command.roomKey, { id: nextEventId(), userId: client.user.id, authorName: client.user.name || "Piloto", body: command.body.trim() });
+      const roomMessages = voiceMessages.get(roomId) || new Map();
+      voiceMessages.set(roomId, roomMessages);
+      if (command.type === "voice.chat") {
+        const message = { id: nextEventId(), userId: client.user.id, authorName: client.user.name || "Piloto", body: command.body.trim(), occurredAt: Date.now() };
+        roomMessages.set(message.id, message);
+        broadcastVoiceChat(roomId, command.channelId, command.roomKey, message);
+        return;
+      }
+      const message = roomMessages.get(command.messageId);
+      if (!message || message.userId !== client.user.id) {
+        protocolError(client.socket, "Você só pode alterar suas próprias mensagens.");
+        return;
+      }
+      if (command.type === "voice.chat.edit") {
+        message.body = command.body.trim();
+        message.editedAt = Date.now();
+        broadcastVoiceChatEvent(roomId, command.channelId, command.roomKey, "voice.chat.updated", message);
+      } else {
+        roomMessages.delete(command.messageId);
+        broadcastVoiceChatEvent(roomId, command.channelId, command.roomKey, "voice.chat.deleted", { messageId: command.messageId, userId: client.user.id });
+      }
       return;
     }
     if (!client.voiceRooms.has(roomId)) {

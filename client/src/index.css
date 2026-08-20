@@ -279,3 +279,41 @@ button:not(:disabled), a[href], input:not(:disabled) { cursor: pointer; }
 @media (prefers-reduced-motion: reduce) {
   .cybercall-help-panel, .cybercall-help-trigger { transition: none !important; }
 }
+
+
+/* Direção editorial Night Circuit: respiro, atmosfera e foco inspirado em bibliotecas de interfaces modernas. */
+.cybercall-app {
+  background-image: radial-gradient(circle at 50% -12%, rgba(111,255,233,.11), transparent 30%), radial-gradient(circle at 82% 18%, rgba(55,96,255,.12), transparent 24%), linear-gradient(180deg, #070a12 0%, #080b10 42%, #091116 100%);
+}
+.cybercall-app > header {
+  background: rgba(7, 10, 18, .76) !important;
+  backdrop-filter: blur(18px);
+  box-shadow: 0 1px 0 rgba(111,255,233,.06), 0 16px 44px rgba(0,0,0,.16);
+}
+.cypher-hero-shell {
+  border-radius: 22px;
+  border-color: rgba(111,255,233,.2) !important;
+  box-shadow: 0 24px 70px rgba(0,0,0,.28), 0 0 0 1px rgba(111,255,233,.025), 0 0 80px rgba(38,76,178,.12);
+}
+.cypher-hero-shell::before {
+  opacity: .26;
+  background-size: 36px 36px;
+  mask-image: radial-gradient(circle at 72% 28%, black, transparent 68%);
+}
+.cypher-hero-shell::after { opacity: .52; filter: blur(.2px); }
+.cypher-hero-content h1 { max-width: 18ch; font-size: clamp(1.65rem, 4vw, 2.75rem); line-height: .98; letter-spacing: -.055em; }
+.cypher-hero-content p { max-width: 48ch; color: rgba(216,228,228,.72); }
+.cypher-hero-shell .cypher-hero-content > span { border-radius: 14px; box-shadow: 0 0 28px rgba(111,255,233,.2); }
+.cypher-app-card,
+.cybercall-app aside,
+.cybercall-app section > header { transition: border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease; }
+.cybercall-app aside:hover { border-color: rgba(111,255,233,.18); }
+.cybercall-app input:focus-visible,
+.cybercall-app button:focus-visible { outline: 2px solid rgba(111,255,233,.8); outline-offset: 2px; }
+@media (max-width: 767px) {
+  .cypher-hero-shell { border-radius: 18px; }
+  .cypher-hero-content h1 { max-width: 15ch; font-size: clamp(1.45rem, 8vw, 2.1rem); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cybercall-app > header { backdrop-filter: none; }
+}

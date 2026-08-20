@@ -322,5 +322,25 @@
 - [x] Avaliar compatibilidade do backend Express/tRPC/WebSocket com o Render.
 - [x] Preparar configuração de build e start sem hardcode de porta.
 - [x] Documentar variáveis obrigatórias, banco, OAuth, WebSocket e armazenamento.
-- [ ] Validar a preparação e publicar a configuração no GitHub.
+- [x] Validar a preparação e publicar a configuração no GitHub no commit remoto `df4126b9410e31e47d6429ec6e6159fcccd742b8`.
 - [x] Entregar instruções para conectar o repositório e concluir o deploy no Render.
+
+
+## Editar e excluir mensagens próprias na chamada
+
+- [x] Mapear o contrato atual das mensagens `voice.chat`.
+- [x] Adicionar comandos autenticados para editar e excluir somente mensagens do próprio autor.
+- [x] Propagar eventos realtime de mensagem editada/excluída para os participantes da sala.
+- [x] Adicionar controles acessíveis de editar/excluir, estado editado e confirmação de exclusão.
+- [x] Adicionar testes de autorização, limites, realtime e helpers da interface.
+- [x] Validar `pnpm check`, suíte e build; revisão visual da sala permanece registrada para captura adicional.
+- [ ] Publicar as alterações no GitHub e salvar checkpoint.
+
+
+## Referência visual 21st.dev
+
+- [x] Acessar e analisar a referência visual do 21st.dev.
+- [x] Definir melhorias de layout, hierarquia, tipografia e componentes compatíveis com o CyberCall.
+- [x] Implementar as melhorias sem perder a estética cyberpunk e a funcionalidade realtime.
+- [x] Validar a interface em desktop e mobile.
+- [ ] Publicar as alterações no GitHub e salvar checkpoint.

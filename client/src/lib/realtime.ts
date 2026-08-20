@@ -2,7 +2,7 @@ import { COOKIE_NAME } from "@shared/const";
 
 export type RealtimeEvent = {
   id: string;
-  type: "message.created" | "message.updated" | "message.deleted" | "dm.created" | "presence.updated" | "voice.members" | "voice.peer.joined" | "voice.peer.left" | "voice.offer" | "voice.answer" | "voice.ice" | "voice.chat" | "voice.typing";
+  type: "message.created" | "message.updated" | "message.deleted" | "dm.created" | "presence.updated" | "voice.members" | "voice.peer.joined" | "voice.peer.left" | "voice.offer" | "voice.answer" | "voice.ice" | "voice.chat" | "voice.chat.updated" | "voice.chat.deleted" | "voice.typing";
   occurredAt: number;
   scope: { communityId?: number; channelId?: number; roomKey?: string; userIds?: number[] };
   payload: any;
@@ -19,6 +19,8 @@ export type RealtimeCommand =
   | { type: "voice.offer" | "voice.answer"; channelId: number; roomKey: string; targetUserId: number; sdp: { type: string; sdp: string } }
   | { type: "voice.ice"; channelId: number; roomKey: string; targetUserId: number; candidate: RTCIceCandidateInit }
   | { type: "voice.chat"; channelId: number; roomKey: string; body: string }
+  | { type: "voice.chat.edit"; channelId: number; roomKey: string; messageId: string; body: string }
+  | { type: "voice.chat.delete"; channelId: number; roomKey: string; messageId: string }
   | { type: "voice.typing"; channelId: number; roomKey: string; typing: boolean }
   | { type: "ping" };
 

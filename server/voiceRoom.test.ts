@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { appendVoiceChatMessage, closeVoiceRoomState, cyberCallVoiceRoomCopy, focusVoiceRoom, formatVoiceTypingLabel, handleVoiceRoomKey, normalizeVoiceChatBody, openVoiceRoomState, pruneVoiceTypingParticipants, restoreVoiceRoomFocus } from "../client/src/pages/Home";
+import { appendVoiceChatMessage, closeVoiceRoomState, cyberCallVoiceRoomCopy, focusVoiceRoom, formatVoiceTypingLabel, handleVoiceRoomKey, normalizeVoiceChatBody, openVoiceRoomState, removeVoiceChatMessage, updateVoiceChatMessage, pruneVoiceTypingParticipants, restoreVoiceRoomFocus } from "../client/src/pages/Home";
 
 const homeSource = readFileSync(new URL("../client/src/pages/Home.tsx", import.meta.url), "utf8");
 const styleSource = readFileSync(new URL("../client/src/index.css", import.meta.url), "utf8");
@@ -22,6 +22,10 @@ describe("CyberCall voice room contract", () => {
     expect(homeSource).toContain("Mensagem da chamada");
     expect(homeSource).toContain("voice.chat");
     expect(homeSource).toContain("voice.typing");
+    expect(homeSource).toContain("voice.chat.edit");
+    expect(homeSource).toContain("voice.chat.delete");
+    expect(homeSource).toContain("Editar minha mensagem");
+    expect(homeSource).toContain("Excluir minha mensagem");
     expect(homeSource).toContain("está digitando");
     const dialog = { focus: () => { dialogFocused = true; } };
     const trigger = { focus: () => { triggerFocused = true; } };
@@ -55,6 +59,8 @@ describe("CyberCall voice room contract", () => {
     const second = { id: "evt-2", userId: 8, authorName: "Maya", body: "Tudo certo", occurredAt: 2 };
     expect(appendVoiceChatMessage([first], first)).toEqual([first]);
     expect(appendVoiceChatMessage([first], second)).toEqual([first, second]);
+    expect(updateVoiceChatMessage([first], "evt-1", " editado ", 3)[0]).toMatchObject({ body: "editado", editedAt: 3 });
+    expect(removeVoiceChatMessage([first, second], "evt-1")).toEqual([second]);
   });
 
   it("formats typing participants and removes expired states", () => {

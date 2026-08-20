@@ -103,6 +103,29 @@ describe("realtime WebSocket integration", () => {
     second.close();
   });
 
+  it("allows the author to edit/delete a room message and rejects another author", async () => {
+    const firstMessages: Array<Record<string, unknown>> = [];
+    const secondMessages: Array<Record<string, unknown>> = [];
+    const first = await openSocket("jwt-token", firstMessages);
+    const second = await openSocket("jwt-token-8", secondMessages);
+    first.send(JSON.stringify({ type: "voice.join", channelId: 12, roomKey: "edit-room" }));
+    second.send(JSON.stringify({ type: "voice.join", channelId: 12, roomKey: "edit-room" }));
+    expect(await waitForMessage(firstMessages, (message) => message.type === "voice.peer.joined")).toBeDefined();
+    expect(await waitForMessage(secondMessages, (message) => message.type === "voice.members")).toBeDefined();
+    first.send(JSON.stringify({ type: "voice.chat", channelId: 12, roomKey: "edit-room", body: "original" }));
+    const created = await waitForMessage(secondMessages, (message) => message.type === "voice.chat");
+    const messageId = (created?.payload as { id?: string }).id;
+    expect(messageId).toBeTruthy();
+    second.send(JSON.stringify({ type: "voice.chat.edit", channelId: 12, roomKey: "edit-room", messageId, body: "tentativa indevida" }));
+    expect((await waitForMessage(secondMessages, (message) => message.type === "error"))?.message).toContain("próprias");
+    first.send(JSON.stringify({ type: "voice.chat.edit", channelId: 12, roomKey: "edit-room", messageId, body: "atualizada" }));
+    expect((await waitForMessage(secondMessages, (message) => message.type === "voice.chat.updated"))?.payload).toMatchObject({ id: messageId, body: "atualizada", userId: 7 });
+    first.send(JSON.stringify({ type: "voice.chat.delete", channelId: 12, roomKey: "edit-room", messageId }));
+    expect((await waitForMessage(secondMessages, (message) => message.type === "voice.chat.deleted"))?.payload).toMatchObject({ messageId, userId: 7 });
+    first.close();
+    second.close();
+  });
+
   it("routes typing state only to participants in the same room", async () => {
     const firstMessages: Array<Record<string, unknown>> = [];
     const secondMessages: Array<Record<string, unknown>> = [];
