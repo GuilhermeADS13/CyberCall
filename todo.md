@@ -63,3 +63,17 @@
 - [x] Validar caminho de segundo plano via helper Notification, acessibilidade com aria-live/role, responsividade, testes e build.
 - [x] Validar explicitamente o fluxo de notificação nativa com a aba em segundo plano via teste do helper e registrar o resultado.
 - [x] Revisar acessibilidade objetiva da central e do estado de permissão, incluindo teclado e leitor de tela, e revalidar testes/build.
+
+- [x] Criar aba/rota de autenticação com login e cadastro em estética Night Circuit.
+- [x] Integrar CTA de login ao fluxo Manus OAuth existente sem duplicar callback ou quebrar nonce/CSRF.
+- [x] Adicionar estados de carregamento, erro, usuário autenticado e retorno à comunidade.
+- [x] Validar acessibilidade por teclado/leitor de tela, responsividade, testes e build.
+
+- [x] Pesquisar a referência oficial de Cyberpunk e mapear paleta, composição, tipografia e tratamento de imagem sem copiar assets protegidos.
+- [x] Criar ou selecionar assets originais com atmosfera futurista semelhante e hospedá-los no fluxo correto do WebDev.
+- [x] Aplicar o redesign visual na autenticação e na experiência social, preservando acessibilidade e performance.
+- [x] Validar responsividade, testes, build e revisão visual após o redesign.
+
+- [x] Adicionar estado de erro explícito na rota `/auth` para falhas de autenticação/sessão, com mensagem orientativa e CTA de recuperação/retorno.
+- [x] Validar a aba `/auth` com foco de teclado e semântica de leitor de tela, incluindo ordem de foco, tabs com IDs/ARIA e estados anunciados.
+- [x] Adicionar teste cobrindo copy, CTA e estados do contrato da experiência de autenticação e reexecutar check/test/build.
