@@ -42,3 +42,10 @@
 - [x] Adicionar controles de entrar, sair, mutar, câmera, compartilhar tela e configurações.
 - [x] Validar acessibilidade, responsividade, estados vazios e build.
 - [x] Manter WebRTC real como etapa posterior, sem simular conexão persistente no backend.
+- [x] Adicionar convite por link e convite para membros da comunidade.
+- [x] Adicionar lista de participantes com menu de moderação.
+- [x] Implementar silenciar e remover participante com confirmação e feedback.
+- [x] Exibir permissões de moderador e manter WebRTC real como etapa posterior.
+- [x] Validar acessibilidade, responsividade, testes e build.
+- [x] Implementar menu contextual de moderação por participante.
+- [x] Exibir controles de moderação somente quando o usuário tiver papel de moderador/administrador, documentando o fallback visual da etapa sem WebRTC.
