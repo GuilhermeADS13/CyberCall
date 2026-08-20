@@ -160,3 +160,11 @@
 - [x] Cobrir a consistência do status selecionado no painel com teste de contrato e reexecutar check/test/build.
 
 - [x] Extrair helper do rótulo de presença e testar que cada status selecionado aparece no resumo Principal.
+
+- [x] Adicionar editor de avatar com recorte quadrado e máscara visual.
+- [x] Adicionar zoom, arraste/posicionamento e pré-visualização antes de aplicar.
+- [x] Aplicar o resultado recortado ao perfil somente após confirmação e manter cancelamento seguro.
+- [x] Validar formatos, acessibilidade, responsividade, testes e build; checkpoint será salvo após a revisão visual.
+
+- [x] Extrair contratos testáveis do editor para abertura, foco inicial, Escape/cancelamento e aplicação do recorte.
+- [x] Revalidar visualmente o modal aberto em mobile e desktop, confirmando overflow, foco e controles de zoom; revisão registrada em `avatar-editor-visual-review.md`.
