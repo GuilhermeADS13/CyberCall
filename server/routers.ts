@@ -5,12 +5,23 @@ import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { createCommunity, createDirectMessage, createMessage, createRoomInvite, deleteMessage, getCommunityOverview, getOwnedAttachment, isCommunityMember, listCommunities, listDirectMessages, listMessages, listNotifications, listRoomInvites, markNotificationRead, respondRoomInvite, toggleMessageReaction, updateMessage } from "./db";
+import { invokeLLM } from "./_core/llm";
+import { buildHelpBotMessages } from "./helpBot";
 
 const attachmentInput = z.object({ id: z.number().int().positive(), key: z.string().min(1).max(512), url: z.string().startsWith("/manus-storage/").max(768), name: z.string().min(1).max(255), mimeType: z.string().min(1).max(120), size: z.number().int().positive().max(10 * 1024 * 1024) }).optional();
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
   system: systemRouter,
+  helpBot: router({
+    ask: publicProcedure.input(z.object({ messages: z.array(z.object({ role: z.enum(["user", "assistant"]), content: z.string().trim().min(1).max(1200) })).min(1).max(8) })).mutation(async ({ input }) => {
+      const response = await invokeLLM({ messages: buildHelpBotMessages(input.messages) as any });
+      const content = response.choices?.[0]?.message?.content;
+      if (typeof content !== "string" || !content.trim()) throw new TRPCError({ code: "SERVICE_UNAVAILABLE", message: "O assistente está sem sinal. Tente novamente em instantes." });
+      return { content: content.trim() };
+    }),
+  }),
+
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

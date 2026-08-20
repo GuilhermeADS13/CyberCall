@@ -114,9 +114,9 @@
 - [x] Identificar claramente as preferências do perfil como locais/demonstrativas até existir endpoint persistente.
 
 - [x] Criar logo CyberCall original com composição amarela, preta, vermelha e ciano inspirada na referência, sem copiar o wordmark.
-- [ ] Criar vídeo de fundo original em formato de pôster futurista vertical/cinemático com glitch e iluminação dramática — pendente até o reset do limite diário de vídeo.
-- [x] Substituir os assets atuais na autenticação, home e sala de vídeo, mantendo poster/fallback acessível; o vídeo anterior permanece como camada animada temporária, com novo poster/logo aplicados também no modal.
-- [x] Validar contraste, responsividade mobile/desktop, acessibilidade, testes e build; checkpoint desta etapa será salvo com o vídeo novo explicitamente pendente.
+- [x] Substituir o vídeo pendente por template de stock cyberpunk licenciado do Pixabay, com poster original, glitch e fallback acessível; geração original permanece opcional.
+- [x] Substituir os assets atuais na autenticação, Home e sala de vídeo pelo logo/poster CyberCall e vídeo licenciado, mantendo fallback acessível e foco reduzido.
+- [x] Validar contraste, responsividade mobile/tablet/desktop, acessibilidade, testes e build; vídeo licenciado aplicado e revisão visual registrada.
 
 - [x] Extrair helpers testáveis de abertura/fechamento e foco da sala de vídeo, cobrindo o comportamento real de Escape e retorno ao gatilho.
 
@@ -125,3 +125,14 @@
 
 - [x] Encapsular registro do gatilho e disparo de Escape no helper integrado da sala.
 - [x] Testar a sequência integrada completa com o mesmo gatilho real/fake.
+
+- [x] Pesquisar template de vídeo cyberpunk/futurista com licença pública adequada para uso web.
+- [x] Registrar fonte, licença e URL do template escolhido em `research-background-video-license.md`.
+- [x] Baixar e hospedar o vídeo no fluxo de assets do WebDev, mantendo poster e fallback.
+- [x] Validar contraste, acessibilidade, responsividade, testes, build e salvar checkpoint.
+
+- [x] Mapear e corrigir os principais pontos de overflow e navegação em mobile, tablet e desktop.
+- [x] Ajustar sala de vídeo, perfil, autenticação e shell social para breakpoints e touch targets consistentes.
+- [x] Integrar chatbot de dúvidas frequentes com contexto seguro da CyberCall, estados de carregamento e fallback.
+- [x] Manter bloqueios de segurança de anexos/PDFs até scanner antimalware configurado e documentar os fluxos seguros liberados em `security-upload-policy.md`.
+- [x] Adicionar testes do chatbot e responsividade/contratos, validar check, testes, build e checkpoint.

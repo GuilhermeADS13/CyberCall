@@ -37,7 +37,7 @@ export const authCopy = {
 
 const heroImage = "/manus-storage/cybercall-poster-background_febc1986.jpg";
 const cyberCallLogo = "/manus-storage/cybercall-poster-logo_d5171e8f.png";
-const cyberCallVideo = "/manus-storage/cybercall-background.mp4";
+const cyberCallVideo = "/manus-storage/cybercall-pixabay-neon_b0920fd2.mp4";
 
 const benefits = [
   "Entre em comunidades com canais de texto, voz e vídeo.",
