@@ -334,7 +334,7 @@
 - [x] Adicionar controles acessíveis de editar/excluir, estado editado e confirmação de exclusão.
 - [x] Adicionar testes de autorização, limites, realtime e helpers da interface.
 - [x] Validar `pnpm check`, suíte e build; revisão visual da sala permanece registrada para captura adicional.
-- [ ] Publicar as alterações no GitHub e salvar checkpoint.
+- [x] Publicar as alterações no GitHub no commit `7d64abc`; checkpoint final pendente.
 
 
 ## Referência visual 21st.dev
@@ -343,4 +343,4 @@
 - [x] Definir melhorias de layout, hierarquia, tipografia e componentes compatíveis com o CyberCall.
 - [x] Implementar as melhorias sem perder a estética cyberpunk e a funcionalidade realtime.
 - [x] Validar a interface em desktop e mobile.
-- [ ] Publicar as alterações no GitHub e salvar checkpoint.
+- [x] Publicar as alterações no GitHub no commit `7d64abc`; checkpoint final pendente.
