@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { appendVoiceChatMessage, closeVoiceRoomState, cyberCallVoiceRoomCopy, focusVoiceRoom, formatVoiceTypingLabel, handleVoiceRoomKey, normalizeVoiceChatBody, openVoiceRoomState, removeVoiceChatMessage, updateVoiceChatMessage, pruneVoiceTypingParticipants, restoreVoiceRoomFocus } from "../client/src/pages/Home";
+import { appendVoiceChatMessage, closeVoiceRoomState, cyberCallVoiceRoomCopy, focusVoiceRoom, formatVoiceTypingLabel, handleVoiceRoomKey, normalizeVoiceChatBody, searchGlobalContent, openVoiceRoomState, removeVoiceChatMessage, updateVoiceChatMessage, pruneVoiceTypingParticipants, restoreVoiceRoomFocus } from "../client/src/pages/Home";
 
 const homeSource = readFileSync(new URL("../client/src/pages/Home.tsx", import.meta.url), "utf8");
 const styleSource = readFileSync(new URL("../client/src/index.css", import.meta.url), "utf8");
@@ -61,6 +61,12 @@ describe("CyberCall voice room contract", () => {
     expect(appendVoiceChatMessage([first], second)).toEqual([first, second]);
     expect(updateVoiceChatMessage([first], "evt-1", " editado ", 3)[0]).toMatchObject({ body: "editado", editedAt: 3 });
     expect(removeVoiceChatMessage([first, second], "evt-1")).toEqual([second]);
+  });
+
+  it("searches messages and users with normalized query", () => {
+    const results = searchGlobalContent("maya", [{ id: 1, authorName: "Maya", body: "Sinal confirmado" }], [{ userId: 8, name: "Maya // MOD", email: "maya@cybercall.test", memberRole: "moderator" }]);
+    expect(results.map((result) => result.kind)).toEqual(["message", "user"]);
+    expect(searchGlobalContent("", [], [])).toEqual([]);
   });
 
   it("formats typing participants and removes expired states", () => {

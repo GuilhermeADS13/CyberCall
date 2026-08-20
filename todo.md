@@ -344,3 +344,13 @@
 - [x] Implementar as melhorias sem perder a estética cyberpunk e a funcionalidade realtime.
 - [x] Validar a interface em desktop e mobile.
 - [x] Publicar as alterações no GitHub no commit `7d64abc`; checkpoint final pendente.
+
+
+## Busca global de mensagens e usuários
+
+- [x] Mapear mensagens, usuários e pontos de navegação pesquisáveis.
+- [x] Implementar índice local e filtros por mensagens e usuários.
+- [x] Criar barra/modal de busca global com resultados agrupados.
+- [x] Adicionar atalhos `/` e `Ctrl/Cmd+K`, foco inicial e navegação por teclado.
+- [x] Validar acessibilidade, desktop/mobile, testes, build e integração com navegação.
+- [ ] Publicar no GitHub e salvar checkpoint.

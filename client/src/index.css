@@ -317,3 +317,10 @@ button:not(:disabled), a[href], input:not(:disabled) { cursor: pointer; }
 @media (prefers-reduced-motion: reduce) {
   .cybercall-app > header { backdrop-filter: none; }
 }
+
+
+.global-search-panel { animation: global-search-enter 180ms cubic-bezier(.23,1,.32,1) both; }
+.global-search-result { transform: translateZ(0); }
+.global-search-result:active { transform: scale(.99); }
+@keyframes global-search-enter { from { opacity: 0; transform: translateY(-8px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@media (prefers-reduced-motion: reduce) { .global-search-panel { animation: none; } }
