@@ -9,6 +9,7 @@ import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { registerAttachmentRoutes } from "../attachments";
 import { serveStatic, setupVite } from "./vite";
+import { createRealtimeServer } from "../realtime";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -39,6 +40,7 @@ async function startServer() {
     next();
   });
   const server = createServer(app);
+  createRealtimeServer(server);
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));

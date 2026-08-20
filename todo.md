@@ -168,3 +168,37 @@
 
 - [x] Extrair contratos testáveis do editor para abertura, foco inicial, Escape/cancelamento e aplicação do recorte.
 - [x] Revalidar visualmente o modal aberto em mobile e desktop, confirmando overflow, foco e controles de zoom; revisão registrada em `avatar-editor-visual-review.md`.
+
+
+## Sincronização realtime por WebSocket
+
+- [x] Mapear o fluxo atual de mensagens, presença, autenticação e polling; definir contrato de eventos e estratégia de reconexão.
+- [x] Adicionar transporte WebSocket autenticado ao servidor Express sem expor eventos entre comunidades não autorizadas.
+- [x] Publicar eventos de mensagens persistidas e mudanças de presença após validação de autorização.
+- [x] Consumir eventos no cliente, atualizar cache/estado sem duplicar mensagens e manter fallback de reconexão.
+- [x] Cobrir autenticação, isolamento por comunidade/canal, reconexão, deduplicação e presença com testes Vitest.
+- [x] Validar check, suíte de testes, build e responsividade; salvar checkpoint da etapa realtime.
+
+
+## Correções da revisão realtime
+
+- [x] Suportar no handshake WebSocket o mesmo fallback de sessão alternativa usado pelo cliente quando cookies são bloqueados em preview/iframe, com tratamento seguro e UX clara.
+- [x] Restringir eventos de mensagem ao canal assinado; assinaturas de comunidade devem receber apenas presença e eventos comunitários não relacionados a mensagens.
+- [x] Adicionar testes executados de autenticação/handshake, presença inicial e updates, reconexão e deduplicação do cliente, garantindo que os testes frontend sejam coletados pela configuração Vitest.
+- [x] Reexecutar validação completa e salvar checkpoint após corrigir as lacunas desta revisão.
+
+
+## Cobertura adicional da revisão realtime
+
+- [x] Testar reconexão do cliente WebSocket e envio das inscrições após reabertura.
+- [x] Testar snapshot e atualização de presença após inscrição em comunidade.
+- [x] Testar o caminho completo de autenticação Bearer no handshake, além do parser isolado.
+- [x] Reexecutar a validação final e salvar o checkpoint somente após concluir esses testes.
+
+
+## Integração realtime final
+
+- [x] Simular fechamento e reabertura do WebSocket no cliente e confirmar reenvio das inscrições ativas.
+- [x] Exercitar subscribe de comunidade com snapshot inicial e update posterior de presença entregue ao cliente.
+- [x] Exercitar o handshake WebSocket com Bearer fallback através do servidor, não apenas os helpers de construção.
+- [x] Rodar validação final, marcar itens e salvar checkpoint realtime.

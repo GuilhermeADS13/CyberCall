@@ -155,6 +155,13 @@ export async function createMessage(channelId: number, authorId: number, body: s
   return (await db.select({ id: messages.id, channelId: messages.channelId, authorId: messages.authorId, body: messages.body, attachmentKey: messages.attachmentKey, attachmentUrl: messages.attachmentUrl, attachmentName: messages.attachmentName, attachmentMimeType: messages.attachmentMimeType, attachmentSize: messages.attachmentSize, createdAt: messages.createdAt, editedAt: messages.editedAt, authorName: users.name }).from(messages).innerJoin(users, eq(users.id, messages.authorId)).where(eq(messages.id, messageId)).limit(1))[0];
 }
 
+export async function getMessageRealtimeTarget(messageId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const rows = await db.select({ id: messages.id, channelId: messages.channelId, communityId: channels.communityId }).from(messages).innerJoin(channels, eq(channels.id, messages.channelId)).where(eq(messages.id, messageId)).limit(1);
+  return rows[0] ?? null;
+}
+
 export async function updateMessage(messageId: number, authorId: number, body: string) {
   const db = await getDb();
   if (!db) throw new Error("Database unavailable");
@@ -253,4 +260,25 @@ export async function isCommunityMember(communityId: number, userId: number) {
   if (!db) return false;
   const result = await db.select({ id: communityMembers.id }).from(communityMembers).where(and(eq(communityMembers.communityId, communityId), eq(communityMembers.userId, userId))).limit(1);
   return result.length > 0;
+}
+
+export async function getChannelCommunityId(channelId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.select({ communityId: channels.communityId }).from(channels).where(eq(channels.id, channelId)).limit(1);
+  return result[0]?.communityId ?? null;
+}
+
+export async function getMemberCommunityIds(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  const rows = await db.select({ communityId: communityMembers.communityId }).from(communityMembers).where(eq(communityMembers.userId, userId));
+  return rows.map((row) => row.communityId);
+}
+
+export async function getCommunityMemberUserIds(communityId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  const rows = await db.select({ userId: communityMembers.userId }).from(communityMembers).where(eq(communityMembers.communityId, communityId));
+  return rows.map((row) => row.userId);
 }
