@@ -1,0 +1,52 @@
+name: Relatar um bug
+description: Reporte um comportamento inesperado no CyberCall.
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Obrigado por ajudar a melhorar o CyberCall. Remova informações pessoais ou credenciais antes de enviar.
+  - type: textarea
+    id: summary
+    attributes:
+      label: O que aconteceu?
+      description: Descreva o comportamento observado e o resultado esperado.
+      placeholder: Explique o problema com detalhes suficientes para reprodução.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Como reproduzir
+      description: Liste os passos mínimos para reproduzir o problema.
+      placeholder: |
+        1. Entre em...
+        2. Abra...
+        3. Clique em...
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Ambiente
+      description: Informe navegador, sistema operacional e dispositivo.
+      placeholder: Chrome 128 · Ubuntu 24.04 · Desktop
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs ou evidências
+      description: Cole logs sanitizados ou links para screenshots. Nunca inclua tokens, cookies ou dados privados.
+      render: shell
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Verificações
+      options:
+        - label: Confirmei que não incluí credenciais ou dados pessoais.
+          required: true
+        - label: Pesquisei Issues existentes e não encontrei um relatório duplicado.
+          required: true

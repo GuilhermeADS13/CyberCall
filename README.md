@@ -1,8 +1,16 @@
 # CyberCall
 
+[![CyberCall CI](https://github.com/GuilhermeADS13/CyberCall/actions/workflows/ci.yml/badge.svg)](https://github.com/GuilhermeADS13/CyberCall/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 CyberCall é uma plataforma social full-stack inspirada em comunidades em tempo real, com estética **Night Circuit** e foco em comunicação, moderação e chamadas de áudio/vídeo. O produto combina comunidades, canais, mensagens persistentes, DMs, convites de sala, sinalização WebSocket, WebRTC mesh e controles de mídia em uma interface responsiva cyberpunk.
 
 > **Estado atual:** aplicação funcional em desenvolvimento, com autenticação Manus OAuth, persistência Drizzle/MySQL/TiDB, sincronização realtime e chamadas WebRTC em malha. O projeto ainda exige infraestrutura TURN para melhorar conectividade em redes restritivas e um scanner antimalware para liberar documentos e PDFs.
+
+## Prévia visual
+
+![Interface principal do CyberCall](docs/screenshots/cybercall-home-desktop.png)
+
+A imagem acima apresenta o shell Night Circuit em desktop. A experiência de voz/vídeo, medidor de microfone, destaque de fala e indicadores de rede aparecem dentro do overlay de chamada após autenticação e entrada em um canal de voz. Para acompanhar o código e os testes, consulte o [workflow CyberCall CI](.github/workflows/ci.yml).
 
 ## Funcionalidades
 

@@ -265,6 +265,23 @@
 
 - [x] Inspecionar o estado Git local, branch, remote e conteúdo atual do repositório CyberCall informado.
 - [x] Atualizar README e documentação com arquitetura, funcionalidades, segurança, WebRTC, configuração e validação do projeto.
-- [ ] Validar arquivos versionados, excluir segredos e artefatos indevidos e preparar commit sem sobrescrever histórico remoto.
-- [ ] Enviar o projeto completo e a documentação para `GuilhermeADS13/CyberCall`.
-- [ ] Confirmar branch, commit e conteúdo sincronizado; registrar o resultado.
+- [x] Validar arquivos versionados, excluir segredos e artefatos indevidos e preparar commit sem sobrescrever histórico remoto.
+- [x] Enviar o projeto completo e a documentação para `GuilhermeADS13/CyberCall`.
+- [x] Confirmar branch, commit e conteúdo sincronizado; registrar o resultado.
+
+
+## Melhorias de colaboração no GitHub
+
+- [x] Verificar que os commits e pushes anteriores estão presentes na branch `main` do repositório remoto.
+- [ ] Adicionar workflow GitHub Actions para check, testes e build — commit local criado, publicação bloqueada por permissão `workflows` do token GitHub.
+- [x] Adicionar templates de Issue e Pull Request e documentação de contribuição.
+- [x] Preparar apresentação visual do projeto no README com imagem/preview e link para demonstração sem expor segredos.
+- [ ] Validar arquivos, executar checks e publicar as três melhorias no GitHub — checks locais concluídos, push bloqueado pelo workflow.
+- [ ] Confirmar commit, push e arquivos remotos após a publicação.
+
+
+## Push parcial sem workflow
+
+- [ ] Separar o workflow CI do commit publicável sem perder o arquivo local para envio posterior.
+- [ ] Publicar README, templates de colaboração, CONTRIBUTING e screenshot no GitHub.
+- [ ] Confirmar o commit remoto e manter registrada a pendência do escopo `workflow`.

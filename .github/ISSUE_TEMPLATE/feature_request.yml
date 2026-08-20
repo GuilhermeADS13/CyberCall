@@ -1,0 +1,53 @@
+name: Solicitar funcionalidade
+description: Sugira uma melhoria ou capacidade nova para o CyberCall.
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problema ou oportunidade
+      description: Qual necessidade do usuário esta proposta atende?
+      placeholder: Descreva o contexto e quem se beneficia.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposta
+      description: Explique a experiência desejada e o comportamento esperado.
+      placeholder: Descreva a solução sem prescrever detalhes desnecessários de implementação.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Critérios de aceite
+      description: Liste condições verificáveis para considerar a funcionalidade pronta.
+      placeholder: |
+        - [ ] ...
+        - [ ] ...
+  - type: dropdown
+    id: area
+    attributes:
+      label: Área principal
+      options:
+        - Comunidades e canais
+        - Mensagens e DMs
+        - Voz e vídeo
+        - WebSocket e realtime
+        - Segurança e moderação
+        - Perfil e acessibilidade
+        - Infraestrutura e documentação
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Verificações
+      options:
+        - label: Confirmei que esta solicitação não contém dados sensíveis.
+          required: true
+        - label: Pesquisei Issues existentes e não encontrei uma solicitação duplicada.
+          required: true
