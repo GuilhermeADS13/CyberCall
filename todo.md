@@ -384,4 +384,4 @@
 - [x] Adicionar seleção, remoção individual e limpeza completa do histórico.
 - [x] Adicionar testes de deduplicação, limite, persistência e limpeza.
 - [x] Validar TypeScript, suíte, build e responsividade.
-- [ ] Publicar no GitHub e salvar checkpoint.
+- [x] Publicar no GitHub no commit `2171816`; checkpoint final pendente.
