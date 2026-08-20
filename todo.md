@@ -7,3 +7,6 @@
 - [x] Implementar a interface social principal com identidade visual Cyperpuck.
 - [x] Validar fluxos essenciais e preparar checkpoint de entrega.
 - [ ] Próximo ciclo: mensagens diretas, anexos, notificações avançadas, voz/vídeo e moderação administrativa completa.
+- [x] Implementar mensagens diretas persistidas. entre usuários.
+- [x] Adicionar reações persistidas às mensagens; edição permanece no próximo ciclo.
+- [ ] Implementar notificações persistidas e voz/vídeo com WebRTC em um ciclo posterior.

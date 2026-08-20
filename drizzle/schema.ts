@@ -53,6 +53,23 @@ export const channels = mysqlTable("channels", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
+export const directMessages = mysqlTable("directMessages", {
+  id: int("id").autoincrement().primaryKey(),
+  senderId: int("senderId").notNull(),
+  recipientId: int("recipientId").notNull(),
+  body: text("body").notNull(),
+  readAt: timestamp("readAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export const messageReactions = mysqlTable("messageReactions", {
+  id: int("id").autoincrement().primaryKey(),
+  messageId: int("messageId").notNull(),
+  userId: int("userId").notNull(),
+  emoji: varchar("emoji", { length: 16 }).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
 export const messages = mysqlTable("messages", {
   id: int("id").autoincrement().primaryKey(),
   channelId: int("channelId").notNull(),
@@ -65,3 +82,4 @@ export const messages = mysqlTable("messages", {
 export type Community = typeof communities.$inferSelect;
 export type Channel = typeof channels.$inferSelect;
 export type Message = typeof messages.$inferSelect;
+export type DirectMessage = typeof directMessages.$inferSelect;

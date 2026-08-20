@@ -2,13 +2,25 @@ import { describe, expect, it } from "vitest";
 import { appRouter } from "./routers";
 import type { TrpcContext } from "./_core/context";
 
-function createContext(): TrpcContext {
+function createContext(user: TrpcContext["user"] = null): TrpcContext {
   return {
-    user: null,
+    user,
     req: { protocol: "https", headers: {} } as TrpcContext["req"],
     res: {} as TrpcContext["res"],
   };
 }
+
+const authenticatedUser = {
+  id: 1,
+  openId: "sample-user",
+  email: "sample@example.com",
+  name: "Sample User",
+  loginMethod: "manus",
+  role: "user" as const,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  lastSignedIn: new Date(),
+};
 
 describe("community router", () => {
   it("exposes a public community list", async () => {
@@ -19,5 +31,10 @@ describe("community router", () => {
   it("rejects invalid message payloads before reaching persistence", async () => {
     const caller = appRouter.createCaller(createContext());
     await expect(caller.community.messages({ channelId: 0 })).rejects.toMatchObject({ code: "BAD_REQUEST" });
+  });
+
+  it("rejects invalid direct-message recipients", async () => {
+    const caller = appRouter.createCaller(createContext(authenticatedUser));
+    await expect(caller.directMessage.list({ otherUserId: 0 })).rejects.toMatchObject({ code: "BAD_REQUEST" });
   });
 });

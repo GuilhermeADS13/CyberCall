@@ -1,6 +1,6 @@
-import { and, asc, desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq, or } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { communities, communityMembers, channels, InsertUser, messages, users } from "../drizzle/schema";
+import { communities, communityMembers, channels, directMessages, InsertUser, messageReactions, messages, users } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -106,10 +106,14 @@ export async function getCommunityOverview(communityId: number) {
   return { community: communityRows[0], channels: channelRows, members: memberRows };
 }
 
-export async function listMessages(channelId: number) {
+export async function listMessages(channelId: number, viewerId = 0) {
   const db = await getDb();
   if (!db) return [];
-  return db.select({ id: messages.id, channelId: messages.channelId, authorId: messages.authorId, body: messages.body, createdAt: messages.createdAt, editedAt: messages.editedAt, authorName: users.name }).from(messages).innerJoin(users, eq(users.id, messages.authorId)).where(eq(messages.channelId, channelId)).orderBy(asc(messages.createdAt)).limit(100);
+  const rows = await db.select({ id: messages.id, channelId: messages.channelId, authorId: messages.authorId, body: messages.body, createdAt: messages.createdAt, editedAt: messages.editedAt, authorName: users.name }).from(messages).innerJoin(users, eq(users.id, messages.authorId)).where(eq(messages.channelId, channelId)).orderBy(asc(messages.createdAt)).limit(100);
+  return Promise.all(rows.map(async (row) => {
+    const reactions = await db.select({ userId: messageReactions.userId }).from(messageReactions).where(eq(messageReactions.messageId, row.id));
+    return { ...row, reactionCount: reactions.length, reactedByMe: reactions.some((reaction) => reaction.userId === viewerId) };
+  }));
 }
 
 export async function createCommunity(ownerId: number, name: string, description?: string) {
@@ -132,6 +136,33 @@ export async function createMessage(channelId: number, authorId: number, body: s
   const messageId = result[0]?.id;
   if (!messageId) throw new Error("Message creation failed");
   return (await db.select({ id: messages.id, channelId: messages.channelId, authorId: messages.authorId, body: messages.body, createdAt: messages.createdAt, editedAt: messages.editedAt, authorName: users.name }).from(messages).innerJoin(users, eq(users.id, messages.authorId)).where(eq(messages.id, messageId)).limit(1))[0];
+}
+
+export async function listDirectMessages(userId: number, otherUserId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select({ id: directMessages.id, senderId: directMessages.senderId, recipientId: directMessages.recipientId, body: directMessages.body, createdAt: directMessages.createdAt, readAt: directMessages.readAt, senderName: users.name }).from(directMessages).innerJoin(users, eq(users.id, directMessages.senderId)).where(or(and(eq(directMessages.senderId, userId), eq(directMessages.recipientId, otherUserId)), and(eq(directMessages.senderId, otherUserId), eq(directMessages.recipientId, userId)))).orderBy(asc(directMessages.createdAt)).limit(100);
+}
+
+export async function createDirectMessage(senderId: number, recipientId: number, body: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  const result = await db.insert(directMessages).values({ senderId, recipientId, body }).$returningId();
+  const messageId = result[0]?.id;
+  if (!messageId) throw new Error("Direct message creation failed");
+  return (await db.select({ id: directMessages.id, senderId: directMessages.senderId, recipientId: directMessages.recipientId, body: directMessages.body, createdAt: directMessages.createdAt, readAt: directMessages.readAt, senderName: users.name }).from(directMessages).innerJoin(users, eq(users.id, directMessages.senderId)).where(eq(directMessages.id, messageId)).limit(1))[0];
+}
+
+export async function toggleMessageReaction(messageId: number, userId: number, emoji: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  const existing = await db.select({ id: messageReactions.id }).from(messageReactions).where(and(eq(messageReactions.messageId, messageId), eq(messageReactions.userId, userId), eq(messageReactions.emoji, emoji))).limit(1);
+  if (existing[0]) {
+    await db.delete(messageReactions).where(eq(messageReactions.id, existing[0].id));
+    return { active: false } as const;
+  }
+  await db.insert(messageReactions).values({ messageId, userId, emoji });
+  return { active: true } as const;
 }
 
 export async function isCommunityMember(communityId: number, userId: number) {
