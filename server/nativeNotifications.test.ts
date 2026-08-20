@@ -19,7 +19,7 @@ describe("native room invite notifications", () => {
 
     expect(result.title).toBe("Convite recebido: Lobby");
     expect(result.body).toContain("Maya");
-    expect(created?.options?.tag).toBe("cyperpuck-room-invite-7");
+    expect(created?.options?.tag).toBe("cybercall-room-invite-7");
     expect(clicked).toBe(true);
     expect(closed).toBe(true);
   });

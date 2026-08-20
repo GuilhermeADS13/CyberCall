@@ -22,7 +22,7 @@ export function emitRoomInviteNotification(
   const body = `${invite.senderName || "Um piloto"} convidou você para uma sala.`;
   const nativeNotification = new NotificationCtor(title, {
     body,
-    tag: `cyperpuck-room-invite-${invite.id}`,
+    tag: `cybercall-room-invite-${invite.id}`,
     silent: false,
   });
   nativeNotification.onclick = () => {

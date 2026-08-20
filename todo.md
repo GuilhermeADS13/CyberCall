@@ -77,3 +77,28 @@
 - [x] Adicionar estado de erro explícito na rota `/auth` para falhas de autenticação/sessão, com mensagem orientativa e CTA de recuperação/retorno.
 - [x] Validar a aba `/auth` com foco de teclado e semântica de leitor de tela, incluindo ordem de foco, tabs com IDs/ARIA e estados anunciados.
 - [x] Adicionar teste cobrindo copy, CTA e estados do contrato da experiência de autenticação e reexecutar check/test/build.
+
+- [x] Adicionar estado visual de carregamento glitch no CTA de login/cadastro.
+- [x] Adicionar hover/foco neon aos controles e tabs da autenticação.
+- [x] Respeitar `prefers-reduced-motion` e validar testes, acessibilidade e build.
+
+- [x] Renomear a marca, títulos, metadados e textos principais de Cyperpuck para CyberCall; copy pública auditada sem referência residual.
+- [x] Criar logotipo original CyberCall e aplicar o asset na autenticação e na plataforma.
+- [x] Criar vídeo de fundo original com tema futurista e aplicar fallback acessível e responsivo.
+- [x] Priorizar e implementar a funcionalidade essencial priorizada: painel de perfil, segurança de sessão e controle de logout.
+- [x] Validar assets, acessibilidade, responsividade, testes, build e salvar checkpoint.
+
+- [x] Adicionar painel de perfil da sessão com nome, e-mail, papel e estado de segurança.
+- [x] Integrar abertura/fechamento acessível do painel ao shell CyberCall.
+- [x] Cobrir o contrato do perfil com teste unitário e validar build.
+
+- [x] Remover a referência visível residual a Cyperpuck na copy da autenticação.
+- [x] Registrar explicitamente a prioridade funcional entregue: painel de perfil, segurança de sessão e controle de logout.
+- [x] Completar foco inicial e retorno de foco do painel de perfil, com comportamento de diálogo por teclado.
+- [x] Salvar novo checkpoint CyberCall após revalidar screenshots, check, testes e build.
+
+- [x] Validar explicitamente a acessibilidade das animações glitch/neon na autenticação: foco, teclado, aria-busy, anúncio de carregamento e `prefers-reduced-motion`.
+
+- [x] Cobrir com teste a navegação por setas/Home/End e o foco do estado de carregamento da autenticação.
+
+- [x] Cobrir o contrato de foco preservado e anúncio acessível durante `isSubmitting` no CTA de autenticação, depois reexecutar check/test/build.

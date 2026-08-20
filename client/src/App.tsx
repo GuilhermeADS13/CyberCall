@@ -1,4 +1,4 @@
-/* Cyperpuck design: o shell mantém o tema escuro do Circuito Noturno e deixa a landing page controlar a narrativa de arena. */
+/* CyberCall design: o shell mantém o tema escuro do Circuito Noturno e organiza a comunicação como uma arena ao vivo. */
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
