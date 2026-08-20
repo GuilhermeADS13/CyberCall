@@ -222,3 +222,12 @@
 - [x] Integrar preview local de tela, botão de compartilhamento e avisos de permissão/indisponibilidade.
 - [x] Cobrir troca de dispositivos, compartilhamento de tela, cleanup e permissões com testes Vitest.
 - [x] Validar check, testes, build e revisão responsiva; revisão registrada em `media-devices-visual-review.md`.
+
+
+## Indicador de volume do microfone
+
+- [x] Mapear estados de captura, mute, permissão e suporte à Web Audio API; definir contrato do medidor.
+- [x] Implementar medição RMS/nível de entrada com AudioContext e cleanup completo.
+- [x] Integrar barra/anel visual de volume, estado sem sinal e anúncio acessível na sala.
+- [x] Cobrir volume, mute, ausência de stream, throttling e cleanup com testes Vitest.
+- [x] Validar check, testes, build e revisão responsiva; revisão registrada em `microphone-meter-visual-review.md`.
