@@ -3,6 +3,7 @@ import multer from "multer";
 import path from "node:path";
 import { sdk } from "./_core/sdk";
 import { createAttachment } from "./db";
+import { moderateAttachment } from "./attachmentModeration";
 import { storagePut } from "./storage";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
@@ -14,12 +15,9 @@ const allowedTypes = new Set([
   "application/pdf",
   "text/plain",
   "text/csv",
-  "application/zip",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
 ]);
 
-const allowedExtensions = new Set([".jpg", ".jpeg", ".png", ".gif", ".webp", ".pdf", ".txt", ".csv", ".zip", ".docx", ".xlsx"]);
+const allowedExtensions = new Set([".jpg", ".jpeg", ".png", ".gif", ".webp", ".pdf", ".txt", ".csv"]);
 const uploadAttempts = new Map<string, { startedAt: number; count: number }>();
 
 const upload = multer({
@@ -63,6 +61,13 @@ export function registerAttachmentRoutes(app: Express) {
         const file = req.file;
         if (!file || !allowedTypes.has(file.mimetype)) {
           res.status(400).json({ error: "Selecione uma imagem ou arquivo compatível." });
+          return;
+        }
+
+        const moderation = await moderateAttachment(file.buffer, file.mimetype);
+        if (!moderation.allowed) {
+          const status = moderation.category === "moderation_unavailable" ? 503 : 422;
+          res.status(status).json({ error: moderation.reason, code: moderation.category });
           return;
         }
 

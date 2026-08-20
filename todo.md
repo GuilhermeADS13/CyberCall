@@ -23,3 +23,7 @@
 - [x] Concluir o fluxo de upload e persistência de anexos com pré-visualização de imagens.
 - [x] Reforçar segurança de uploads, autenticação, autorização, limites, MIME e abuso.
 - [x] Validar a nova experiência em desktop/mobile e salvar checkpoint.
+- [x] Definir política de bloqueio para arquivos maliciosos, imagens inadequadas e falsificação de MIME.
+- [x] Implementar inspeção segura antes de persistir ou expor anexos.
+- [x] Adicionar estado de moderação e mensagens de rejeição no upload e no composer.
+- [x] Criar testes contra bypasses e validar tipos, testes, build e responsividade.
