@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { closeVoiceRoomState, cyberCallVoiceRoomCopy, focusVoiceRoom, handleVoiceRoomKey, openVoiceRoomState, restoreVoiceRoomFocus } from "../client/src/pages/Home";
+import { appendVoiceChatMessage, closeVoiceRoomState, cyberCallVoiceRoomCopy, focusVoiceRoom, formatVoiceTypingLabel, handleVoiceRoomKey, normalizeVoiceChatBody, openVoiceRoomState, pruneVoiceTypingParticipants, restoreVoiceRoomFocus } from "../client/src/pages/Home";
 
 const homeSource = readFileSync(new URL("../client/src/pages/Home.tsx", import.meta.url), "utf8");
 const styleSource = readFileSync(new URL("../client/src/index.css", import.meta.url), "utf8");
@@ -18,6 +18,11 @@ describe("CyberCall voice room contract", () => {
     expect(homeSource).toContain("Convidar participantes");
     expect(homeSource).toContain("Compartilhar tela");
     expect(homeSource).toContain("voice-participant-grid");
+    expect(homeSource).toContain("Chat textual da chamada");
+    expect(homeSource).toContain("Mensagem da chamada");
+    expect(homeSource).toContain("voice.chat");
+    expect(homeSource).toContain("voice.typing");
+    expect(homeSource).toContain("está digitando");
     const dialog = { focus: () => { dialogFocused = true; } };
     const trigger = { focus: () => { triggerFocused = true; } };
     const triggerRef: { current: typeof trigger | null } = { current: null };
@@ -41,5 +46,21 @@ describe("CyberCall voice room contract", () => {
     expect(triggerFocused).toBe(true);
     expect(styleSource).toContain("voice-room-title-glitch");
     expect(styleSource).toContain("voice-room-scanlines");
+  });
+
+  it("normalizes chat messages and deduplicates repeated realtime events", () => {
+    expect(normalizeVoiceChatBody("  sinal   ")).toBe("sinal");
+    expect(normalizeVoiceChatBody("x".repeat(2100))).toHaveLength(2000);
+    const first = { id: "evt-1", userId: 7, authorName: "Piloto", body: "Olá", occurredAt: 1 };
+    const second = { id: "evt-2", userId: 8, authorName: "Maya", body: "Tudo certo", occurredAt: 2 };
+    expect(appendVoiceChatMessage([first], first)).toEqual([first]);
+    expect(appendVoiceChatMessage([first], second)).toEqual([first, second]);
+  });
+
+  it("formats typing participants and removes expired states", () => {
+    expect(formatVoiceTypingLabel([{ userId: 7, authorName: "Maya", expiresAt: 10 }])).toBe("Maya está digitando...");
+    expect(formatVoiceTypingLabel([{ userId: 7, authorName: "Maya", expiresAt: 10 }, { userId: 8, authorName: "Neo", expiresAt: 10 }])).toBe("Maya e Neo estão digitando...");
+    const current = { 7: { userId: 7, authorName: "Maya", expiresAt: 100 }, 8: { userId: 8, authorName: "Neo", expiresAt: 90 } };
+    expect(Object.keys(pruneVoiceTypingParticipants(current, 95))).toEqual(["7"]);
   });
 });

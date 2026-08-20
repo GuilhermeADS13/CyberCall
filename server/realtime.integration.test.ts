@@ -83,6 +83,45 @@ describe("realtime WebSocket integration", () => {
     socket.close();
   });
 
+  it("routes voice chat only to participants in the same room and echoes the sender", async () => {
+    const firstMessages: Array<Record<string, unknown>> = [];
+    const secondMessages: Array<Record<string, unknown>> = [];
+    const first = await openSocket("jwt-token", firstMessages);
+    const second = await openSocket("jwt-token-8", secondMessages);
+    first.send(JSON.stringify({ type: "voice.join", channelId: 12, roomKey: "chat-room" }));
+    second.send(JSON.stringify({ type: "voice.join", channelId: 12, roomKey: "chat-room" }));
+    expect(await waitForMessage(firstMessages, (message) => message.type === "voice.peer.joined")).toBeDefined();
+    expect(await waitForMessage(secondMessages, (message) => message.type === "voice.members")).toBeDefined();
+
+    first.send(JSON.stringify({ type: "voice.chat", channelId: 12, roomKey: "chat-room", body: "  sinal de teste  " }));
+    const firstChat = await waitForMessage(firstMessages, (message) => message.type === "voice.chat");
+    const secondChat = await waitForMessage(secondMessages, (message) => message.type === "voice.chat");
+    expect((firstChat?.payload as { userId?: number; body?: string }).userId).toBe(7);
+    expect((firstChat?.payload as { body?: string }).body).toBe("sinal de teste");
+    expect((secondChat?.payload as { userId?: number; body?: string }).userId).toBe(7);
+    first.close();
+    second.close();
+  });
+
+  it("routes typing state only to participants in the same room", async () => {
+    const firstMessages: Array<Record<string, unknown>> = [];
+    const secondMessages: Array<Record<string, unknown>> = [];
+    const first = await openSocket("jwt-token", firstMessages);
+    const second = await openSocket("jwt-token-8", secondMessages);
+    first.send(JSON.stringify({ type: "voice.join", channelId: 12, roomKey: "typing-room" }));
+    second.send(JSON.stringify({ type: "voice.join", channelId: 12, roomKey: "typing-room" }));
+    expect(await waitForMessage(firstMessages, (message) => message.type === "voice.peer.joined")).toBeDefined();
+    expect(await waitForMessage(secondMessages, (message) => message.type === "voice.members")).toBeDefined();
+    first.send(JSON.stringify({ type: "voice.typing", channelId: 12, roomKey: "typing-room", typing: true }));
+    const received = await waitForMessage(secondMessages, (message) => message.type === "voice.typing");
+    expect(received?.payload).toMatchObject({ userId: 7, authorName: "Pilot 7", typing: true });
+    first.send(JSON.stringify({ type: "voice.typing", channelId: 12, roomKey: "typing-room", typing: false }));
+    const stopped = await waitForMessage(secondMessages, (message) => message.type === "voice.typing" && (message.payload as { typing?: boolean }).typing === false);
+    expect(stopped?.payload).toMatchObject({ userId: 7, typing: false });
+    first.close();
+    second.close();
+  });
+
   it("routes voice offers only to the authorized peer in the same room", async () => {
     const firstMessages: Array<Record<string, unknown>> = [];
     const secondMessages: Array<Record<string, unknown>> = [];

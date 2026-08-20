@@ -273,15 +273,45 @@
 ## Melhorias de colaboração no GitHub
 
 - [x] Verificar que os commits e pushes anteriores estão presentes na branch `main` do repositório remoto.
-- [ ] Adicionar workflow GitHub Actions para check, testes e build — commit local criado, publicação bloqueada por permissão `workflows` do token GitHub.
+- [x] Adicionar workflow GitHub Actions para check, testes e build — preparado localmente e explicitamente adiado pelo usuário até autorizar o escopo `workflow`.
 - [x] Adicionar templates de Issue e Pull Request e documentação de contribuição.
 - [x] Preparar apresentação visual do projeto no README com imagem/preview e link para demonstração sem expor segredos.
-- [ ] Validar arquivos, executar checks e publicar as três melhorias no GitHub — checks locais concluídos, push bloqueado pelo workflow.
-- [ ] Confirmar commit, push e arquivos remotos após a publicação.
+- [x] Validar arquivos, executar checks e publicar as alterações solicitadas nesta etapa — README, templates, documentação e screenshot publicados; workflow CI ficou fora do push conforme solicitação.
+- [x] Confirmar commit, push e arquivos remotos após a publicação parcial; remoto confirmado em `c79baa76a8e74148724037aba5da57be4ce61ba5`.
 
 
 ## Push parcial sem workflow
 
-- [ ] Separar o workflow CI do commit publicável sem perder o arquivo local para envio posterior.
-- [ ] Publicar README, templates de colaboração, CONTRIBUTING e screenshot no GitHub.
-- [ ] Confirmar o commit remoto e manter registrada a pendência do escopo `workflow`.
+- [x] Separar o workflow CI do commit publicável sem perder o arquivo local para envio posterior.
+- [x] Publicar README, templates de colaboração, CONTRIBUTING e screenshot no GitHub.
+- [x] Confirmar o commit remoto e manter registrada a pendência do escopo `workflow`.
+
+
+## Chat textual dentro da chamada
+
+- [x] Mapear o contrato WebSocket e a UI atual da sala de voz/vídeo.
+- [x] Adicionar eventos autenticados de chat da chamada, com isolamento por sala.
+- [x] Construir painel de mensagens com envio, histórico da sessão, estados vazios e responsividade mobile.
+- [x] Integrar o cliente realtime, deduplicação e rolagem para novas mensagens.
+- [x] Adicionar testes Vitest para contrato, roteamento e helpers da interface.
+- [x] Validar `pnpm check`, testes, build e revisão visual da sala em desktop/mobile.
+- [x] Salvar checkpoint com a implementação concluída na versão `229683b7`.
+
+
+## Indicador de digitação na chamada
+
+- [x] Mapear o contrato atual do chat e os estados de conexão da sala.
+- [x] Adicionar eventos autenticados `voice.typing` com isolamento por sala.
+- [x] Implementar debounce no emissor e expiração automática no receptor.
+- [x] Exibir indicador acessível com nomes dos participantes que estão digitando.
+- [x] Adicionar testes Vitest de contrato, debounce, expiração e integração WebSocket.
+- [x] Validar `pnpm check`, suíte, build e revisão responsiva.
+- [x] Salvar checkpoint da implementação concluída na versão `774c6d0a`.
+
+
+## Publicação completa no GitHub sem workflow CI
+
+- [x] Auditar alterações locais e separar `.github/workflows/ci.yml` do commit publicável.
+- [x] Executar validações e preparar commit com o chat da chamada e o indicador de digitação.
+- [ ] Enviar o commit para `GuilhermeADS13/CyberCall` e verificar os arquivos remotos.
+- [ ] Registrar o commit remoto e a pendência futura do workflow CI.
