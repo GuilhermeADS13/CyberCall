@@ -138,6 +138,24 @@ export async function createMessage(channelId: number, authorId: number, body: s
   return (await db.select({ id: messages.id, channelId: messages.channelId, authorId: messages.authorId, body: messages.body, createdAt: messages.createdAt, editedAt: messages.editedAt, authorName: users.name }).from(messages).innerJoin(users, eq(users.id, messages.authorId)).where(eq(messages.id, messageId)).limit(1))[0];
 }
 
+export async function updateMessage(messageId: number, authorId: number, body: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  const existing = await db.select({ id: messages.id, authorId: messages.authorId }).from(messages).where(eq(messages.id, messageId)).limit(1);
+  if (!existing[0] || existing[0].authorId !== authorId) throw new Error("Only the author can edit this message");
+  await db.update(messages).set({ body, editedAt: new Date() }).where(eq(messages.id, messageId));
+  return { success: true } as const;
+}
+
+export async function deleteMessage(messageId: number, authorId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  const existing = await db.select({ id: messages.id, authorId: messages.authorId }).from(messages).where(eq(messages.id, messageId)).limit(1);
+  if (!existing[0] || existing[0].authorId !== authorId) throw new Error("Only the author can delete this message");
+  await db.delete(messages).where(eq(messages.id, messageId));
+  return { success: true } as const;
+}
+
 export async function listDirectMessages(userId: number, otherUserId: number) {
   const db = await getDb();
   if (!db) return [];

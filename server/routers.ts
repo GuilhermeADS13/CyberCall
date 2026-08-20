@@ -4,7 +4,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { createCommunity, createDirectMessage, createMessage, getCommunityOverview, isCommunityMember, listCommunities, listDirectMessages, listMessages, listNotifications, markNotificationRead, toggleMessageReaction } from "./db";
+import { createCommunity, createDirectMessage, createMessage, deleteMessage, getCommunityOverview, isCommunityMember, listCommunities, listDirectMessages, listMessages, listNotifications, markNotificationRead, toggleMessageReaction, updateMessage } from "./db";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -26,6 +26,14 @@ export const appRouter = router({
   }),
 
   message: router({
+    update: protectedProcedure.input(z.object({ messageId: z.number().int().positive(), body: z.string().trim().min(1).max(4000) })).mutation(async ({ ctx, input }) => {
+      try { return await updateMessage(input.messageId, ctx.user.id, input.body); }
+      catch (error) { if (error instanceof Error && error.message.startsWith("Only")) throw new TRPCError({ code: "FORBIDDEN", message: "Somente o autor pode editar esta mensagem." }); throw error; }
+    }),
+    delete: protectedProcedure.input(z.object({ messageId: z.number().int().positive() })).mutation(async ({ ctx, input }) => {
+      try { return await deleteMessage(input.messageId, ctx.user.id); }
+      catch (error) { if (error instanceof Error && error.message.startsWith("Only")) throw new TRPCError({ code: "FORBIDDEN", message: "Somente o autor pode excluir esta mensagem." }); throw error; }
+    }),
     toggleReaction: protectedProcedure.input(z.object({ messageId: z.number().int().positive(), emoji: z.string().min(1).max(16) })).mutation(({ ctx, input }) => toggleMessageReaction(input.messageId, ctx.user.id, input.emoji)),
   }),
 

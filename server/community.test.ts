@@ -42,4 +42,14 @@ describe("community router", () => {
     const result = await appRouter.createCaller(createContext(authenticatedUser)).notification.list();
     expect(Array.isArray(result)).toBe(true);
   });
+
+  it("protects message editing and deletion", async () => {
+    const anonymousCaller = appRouter.createCaller(createContext());
+    await expect(anonymousCaller.message.update({ messageId: 1, body: "novo texto" })).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+    await expect(anonymousCaller.message.delete({ messageId: 1 })).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+
+    const authenticatedCaller = appRouter.createCaller(createContext(authenticatedUser));
+    await expect(authenticatedCaller.message.update({ messageId: 1, body: "novo texto" })).rejects.toMatchObject({ code: "FORBIDDEN" });
+    await expect(authenticatedCaller.message.delete({ messageId: 1 })).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
 });
