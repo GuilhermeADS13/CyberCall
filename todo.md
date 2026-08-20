@@ -259,3 +259,12 @@
 - [x] Integrar barras/ícone, cor, tooltip e aria-label de qualidade em cada tile e na telemetria.
 - [x] Cobrir classificação, métricas ausentes, cleanup e transições com testes Vitest.
 - [x] Validar check, testes, build e revisão responsiva; revisão registrada em `network-quality-visual-review.md`.
+
+
+## Sincronização com GitHub
+
+- [x] Inspecionar o estado Git local, branch, remote e conteúdo atual do repositório CyberCall informado.
+- [x] Atualizar README e documentação com arquitetura, funcionalidades, segurança, WebRTC, configuração e validação do projeto.
+- [ ] Validar arquivos versionados, excluir segredos e artefatos indevidos e preparar commit sem sobrescrever histórico remoto.
+- [ ] Enviar o projeto completo e a documentação para `GuilhermeADS13/CyberCall`.
+- [ ] Confirmar branch, commit e conteúdo sincronizado; registrar o resultado.
