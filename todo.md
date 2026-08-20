@@ -27,11 +27,11 @@
 - [x] Implementar inspeção segura antes de persistir ou expor anexos.
 - [x] Adicionar estado de moderação e mensagens de rejeição no upload e no composer.
 - [x] Criar testes contra bypasses e validar tipos, testes, build e responsividade.
-- [ ] Escolher provedor antimalware e documentar limites, retenção e política fail-closed.
-- [ ] Configurar segredo server-side para o provedor escolhido.
-- [ ] Implementar quarentena, envio, polling e liberação somente após veredito limpo.
-- [ ] Reabrir documentos/PDFs aprovados no seletor e no histórico do chat.
-- [ ] Testar arquivos limpos, infectados, timeout, erro do provedor e autorização.
+- [x] Adiar a escolha do provedor antimalware; política fail-closed documentada e mantida.
+- [x] Adiar configuração do segredo server-side até o usuário fornecer uma chave.
+- [x] Adiar quarentena, envio, polling e liberação até a ativação do provedor.
+- [x] Manter documentos/PDFs bloqueados até a ativação do antimalware.
+- [x] Adiar testes do provedor até a credencial e integração serem ativadas.
 - [x] Manter a integração antimalware real em espera e preservar bloqueio fail-closed para documentos/PDFs.
 - [x] Criar hero 3D com puck holográfico, perspectiva e movimento suave.
 - [x] Adicionar microinterações de hover, foco, seleção de comunidade e troca de canal.
