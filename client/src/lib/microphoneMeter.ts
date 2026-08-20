@@ -3,14 +3,20 @@ export type MicrophoneMeter = {
   close: () => void;
 };
 
-export function normalizeAudioLevel(samples: Uint8Array): number {
+export function normalizeMicrophoneSensitivity(value: number): number {
+  if (!Number.isFinite(value)) return 100;
+  return Math.min(200, Math.max(50, Math.round(value)));
+}
+
+export function normalizeAudioLevel(samples: Uint8Array, sensitivity = 100): number {
   if (samples.length === 0) return 0;
   let sum = 0;
   for (let index = 0; index < samples.length; index += 1) {
     const centered = (samples[index] - 128) / 128;
     sum += centered * centered;
   }
-  return Math.min(1, Math.sqrt(sum / samples.length) * 2.5);
+  const multiplier = normalizeMicrophoneSensitivity(sensitivity) / 100;
+  return Math.min(1, Math.sqrt(sum / samples.length) * 2.5 * multiplier);
 }
 
 type AudioContextLike = {
@@ -25,7 +31,7 @@ type MeterWindow = typeof globalThis & {
   webkitAudioContext?: new () => AudioContextLike;
 };
 
-export function createMicrophoneMeter(stream: MediaStream, onLevel: (level: number) => void, runtime: MeterWindow = globalThis as MeterWindow): MicrophoneMeter {
+export function createMicrophoneMeter(stream: MediaStream, onLevel: (level: number) => void, runtime: MeterWindow = globalThis as MeterWindow, sensitivity = 100): MicrophoneMeter {
   const AudioContextCtor = runtime.AudioContext || runtime.webkitAudioContext;
   if (!AudioContextCtor) return { supported: false, close: () => undefined };
 
@@ -49,7 +55,7 @@ export function createMicrophoneMeter(stream: MediaStream, onLevel: (level: numb
   const tick = () => {
     if (closed) return;
     analyser.getByteTimeDomainData(samples);
-    onLevel(normalizeAudioLevel(samples));
+    onLevel(normalizeAudioLevel(samples, sensitivity));
     frame = schedule(tick);
   };
   void context.resume?.().catch(() => undefined);

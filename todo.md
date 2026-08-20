@@ -231,3 +231,12 @@
 - [x] Integrar barra/anel visual de volume, estado sem sinal e anúncio acessível na sala.
 - [x] Cobrir volume, mute, ausência de stream, throttling e cleanup com testes Vitest.
 - [x] Validar check, testes, build e revisão responsiva; revisão registrada em `microphone-meter-visual-review.md`.
+
+
+## Sensibilidade do microfone
+
+- [x] Definir faixa, valor padrão, validação e chave de persistência da sensibilidade.
+- [x] Aplicar sensibilidade ao nível visual do medidor sem alterar o áudio enviado pela chamada.
+- [x] Adicionar slider, valor percentual, descrição acessível e ação de reset nas configurações da sala.
+- [x] Cobrir normalização, persistência, limites e reset com testes Vitest.
+- [x] Validar check, testes, build e revisão responsiva; revisão registrada em `microphone-sensitivity-visual-review.md`.

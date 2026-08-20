@@ -1,7 +1,14 @@
 import { describe, expect, it, vi } from "vitest";
-import { createMicrophoneMeter, normalizeAudioLevel } from "./microphoneMeter";
+import { createMicrophoneMeter, normalizeAudioLevel, normalizeMicrophoneSensitivity } from "./microphoneMeter";
 
 describe("microphone meter", () => {
+  it("clamps and rounds sensitivity to the safe range", () => {
+    expect(normalizeMicrophoneSensitivity(25)).toBe(50);
+    expect(normalizeMicrophoneSensitivity(137.4)).toBe(137);
+    expect(normalizeMicrophoneSensitivity(240)).toBe(200);
+    expect(normalizeMicrophoneSensitivity(Number.NaN)).toBe(100);
+  });
+
   it("normalizes silence and a signal into the 0..1 range", () => {
     expect(normalizeAudioLevel(new Uint8Array([128, 128, 128]))).toBe(0);
     expect(normalizeAudioLevel(new Uint8Array([0, 255, 0, 255]))).toBe(1);
