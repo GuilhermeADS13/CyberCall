@@ -169,7 +169,6 @@
 - [x] Extrair contratos testáveis do editor para abertura, foco inicial, Escape/cancelamento e aplicação do recorte.
 - [x] Revalidar visualmente o modal aberto em mobile e desktop, confirmando overflow, foco e controles de zoom; revisão registrada em `avatar-editor-visual-review.md`.
 
-
 ## Sincronização realtime por WebSocket
 
 - [x] Mapear o fluxo atual de mensagens, presença, autenticação e polling; definir contrato de eventos e estratégia de reconexão.
@@ -179,14 +178,12 @@
 - [x] Cobrir autenticação, isolamento por comunidade/canal, reconexão, deduplicação e presença com testes Vitest.
 - [x] Validar check, suíte de testes, build e responsividade; salvar checkpoint da etapa realtime.
 
-
 ## Correções da revisão realtime
 
 - [x] Suportar no handshake WebSocket o mesmo fallback de sessão alternativa usado pelo cliente quando cookies são bloqueados em preview/iframe, com tratamento seguro e UX clara.
 - [x] Restringir eventos de mensagem ao canal assinado; assinaturas de comunidade devem receber apenas presença e eventos comunitários não relacionados a mensagens.
 - [x] Adicionar testes executados de autenticação/handshake, presença inicial e updates, reconexão e deduplicação do cliente, garantindo que os testes frontend sejam coletados pela configuração Vitest.
 - [x] Reexecutar validação completa e salvar checkpoint após corrigir as lacunas desta revisão.
-
 
 ## Cobertura adicional da revisão realtime
 
@@ -195,14 +192,12 @@
 - [x] Testar o caminho completo de autenticação Bearer no handshake, além do parser isolado.
 - [x] Reexecutar a validação final e salvar o checkpoint somente após concluir esses testes.
 
-
 ## Integração realtime final
 
 - [x] Simular fechamento e reabertura do WebSocket no cliente e confirmar reenvio das inscrições ativas.
 - [x] Exercitar subscribe de comunidade com snapshot inicial e update posterior de presença entregue ao cliente.
 - [x] Exercitar o handshake WebSocket com Bearer fallback através do servidor, não apenas os helpers de construção.
 - [x] Rodar validação final, marcar itens e salvar checkpoint realtime.
-
 
 ## Sinalização WebRTC para salas
 
@@ -213,7 +208,6 @@
 - [x] Cobrir signaling, autorização, isolamento, reconexão, permissões de mídia e cleanup com testes Vitest.
 - [x] Validar check, testes, build e revisão responsiva; revisão registrada em `webrtc-visual-review.md`.
 
-
 ## Mídia avançada: tela e dispositivos
 
 - [x] Mapear suporte do navegador para enumerateDevices, setSinkId e getDisplayMedia; definir estados e fallback acessível.
@@ -223,7 +217,6 @@
 - [x] Cobrir troca de dispositivos, compartilhamento de tela, cleanup e permissões com testes Vitest.
 - [x] Validar check, testes, build e revisão responsiva; revisão registrada em `media-devices-visual-review.md`.
 
-
 ## Indicador de volume do microfone
 
 - [x] Mapear estados de captura, mute, permissão e suporte à Web Audio API; definir contrato do medidor.
@@ -231,7 +224,6 @@
 - [x] Integrar barra/anel visual de volume, estado sem sinal e anúncio acessível na sala.
 - [x] Cobrir volume, mute, ausência de stream, throttling e cleanup com testes Vitest.
 - [x] Validar check, testes, build e revisão responsiva; revisão registrada em `microphone-meter-visual-review.md`.
-
 
 ## Sensibilidade do microfone
 
@@ -241,7 +233,6 @@
 - [x] Cobrir normalização, persistência, limites e reset com testes Vitest.
 - [x] Validar check, testes, build e revisão responsiva; revisão registrada em `microphone-sensitivity-visual-review.md`.
 
-
 ## Destaque de quem está falando
 
 - [x] Mapear streams locais/remotos, participantes e estado de mute para definir o contrato de fala ativa.
@@ -249,7 +240,6 @@
 - [x] Integrar destaque neon, etiqueta acessível e estado de fala nos tiles locais/remotos.
 - [x] Cobrir limiar, silêncio, mute, fallback e cleanup com testes Vitest.
 - [x] Validar check, testes, build e revisão responsiva; revisão registrada em `speaking-indicator-visual-review.md`.
-
 
 ## Qualidade de conexão por participante
 
@@ -260,7 +250,6 @@
 - [x] Cobrir classificação, métricas ausentes, cleanup e transições com testes Vitest.
 - [x] Validar check, testes, build e revisão responsiva; revisão registrada em `network-quality-visual-review.md`.
 
-
 ## Sincronização com GitHub
 
 - [x] Inspecionar o estado Git local, branch, remote e conteúdo atual do repositório CyberCall informado.
@@ -268,7 +257,6 @@
 - [x] Validar arquivos versionados, excluir segredos e artefatos indevidos e preparar commit sem sobrescrever histórico remoto.
 - [x] Enviar o projeto completo e a documentação para `GuilhermeADS13/CyberCall`.
 - [x] Confirmar branch, commit e conteúdo sincronizado; registrar o resultado.
-
 
 ## Melhorias de colaboração no GitHub
 
@@ -279,13 +267,11 @@
 - [x] Validar arquivos, executar checks e publicar as alterações solicitadas nesta etapa — README, templates, documentação e screenshot publicados; workflow CI ficou fora do push conforme solicitação.
 - [x] Confirmar commit, push e arquivos remotos após a publicação parcial; remoto confirmado em `c79baa76a8e74148724037aba5da57be4ce61ba5`.
 
-
 ## Push parcial sem workflow
 
 - [x] Separar o workflow CI do commit publicável sem perder o arquivo local para envio posterior.
 - [x] Publicar README, templates de colaboração, CONTRIBUTING e screenshot no GitHub.
 - [x] Confirmar o commit remoto e manter registrada a pendência do escopo `workflow`.
-
 
 ## Chat textual dentro da chamada
 
@@ -297,7 +283,6 @@
 - [x] Validar `pnpm check`, testes, build e revisão visual da sala em desktop/mobile.
 - [x] Salvar checkpoint com a implementação concluída na versão `229683b7`.
 
-
 ## Indicador de digitação na chamada
 
 - [x] Mapear o contrato atual do chat e os estados de conexão da sala.
@@ -308,14 +293,12 @@
 - [x] Validar `pnpm check`, suíte, build e revisão responsiva.
 - [x] Salvar checkpoint da implementação concluída na versão `774c6d0a`.
 
-
 ## Publicação completa no GitHub sem workflow CI
 
 - [x] Auditar alterações locais e separar `.github/workflows/ci.yml` do commit publicável.
 - [x] Executar validações e preparar commit com o chat da chamada e o indicador de digitação.
 - [x] Enviar o commit para `GuilhermeADS13/CyberCall` e verificar os arquivos remotos.
 - [x] Registrar o commit remoto `bfc58b9b6d58ee730e0ff7d4dbbd479bbe756a7a`; workflow CI permanece ausente por decisão anterior.
-
 
 ## Preparação para Render
 
@@ -324,7 +307,6 @@
 - [x] Documentar variáveis obrigatórias, banco, OAuth, WebSocket e armazenamento.
 - [x] Validar a preparação e publicar a configuração no GitHub no commit remoto `df4126b9410e31e47d6429ec6e6159fcccd742b8`.
 - [x] Entregar instruções para conectar o repositório e concluir o deploy no Render.
-
 
 ## Editar e excluir mensagens próprias na chamada
 
@@ -336,7 +318,6 @@
 - [x] Validar `pnpm check`, suíte e build; revisão visual da sala permanece registrada para captura adicional.
 - [x] Publicar as alterações no GitHub no commit `7d64abc`; checkpoint final pendente.
 
-
 ## Referência visual 21st.dev
 
 - [x] Acessar e analisar a referência visual do 21st.dev.
@@ -344,7 +325,6 @@
 - [x] Implementar as melhorias sem perder a estética cyberpunk e a funcionalidade realtime.
 - [x] Validar a interface em desktop e mobile.
 - [x] Publicar as alterações no GitHub no commit `7d64abc`; checkpoint final pendente.
-
 
 ## Busca global de mensagens e usuários
 
@@ -355,7 +335,6 @@
 - [x] Validar acessibilidade, desktop/mobile, testes, build e integração com navegação.
 - [x] Publicar no GitHub no commit `22f8794`; checkpoint final pendente.
 
-
 ## Destaque de termos pesquisados
 
 - [x] Mapear a renderização atual dos resultados da busca global.
@@ -365,7 +344,6 @@
 - [x] Validar TypeScript, testes, build e revisão responsiva.
 - [x] Publicar no GitHub no commit `08ef607`; checkpoint final pendente.
 
-
 ## Filtros da busca global
 
 - [x] Mapear o estado atual da busca e seus resultados agrupados.
@@ -374,7 +352,6 @@
 - [x] Adicionar testes para cada filtro e contagens correspondentes.
 - [x] Validar TypeScript, suíte, build e responsividade.
 - [x] Publicar no GitHub no commit `f08efd0`; checkpoint final pendente.
-
 
 ## Histórico de buscas recentes
 
