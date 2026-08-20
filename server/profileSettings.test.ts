@@ -1,10 +1,25 @@
 import { describe, expect, it } from "vitest";
-import { canApplyAvatarCrop, getAvatarCropTransform, getAvatarEditorA11yContract, getPresenceLabel, isAvatarEditorEscapeKey, presenceOptions, validateProfileAvatarFile } from "../client/src/pages/Home";
+import {
+  canApplyAvatarCrop,
+  getAvatarCropTransform,
+  getAvatarEditorA11yContract,
+  getPresenceLabel,
+  isAvatarEditorEscapeKey,
+  presenceOptions,
+  validateProfileAvatarFile,
+} from "../client/src/pages/Home";
 
 describe("CyberCall profile settings", () => {
   it("exposes the four presence states", () => {
-    expect(presenceOptions.map((option) => option.value)).toEqual(["online", "away", "busy", "invisible"]);
-    expect(presenceOptions.every((option) => option.label && option.detail)).toBe(true);
+    expect(presenceOptions.map(option => option.value)).toEqual([
+      "online",
+      "away",
+      "busy",
+      "invisible",
+    ]);
+    expect(presenceOptions.every(option => option.label && option.detail)).toBe(
+      true
+    );
   });
 
   it("keeps the profile summary label aligned with the selected presence", () => {
@@ -15,7 +30,11 @@ describe("CyberCall profile settings", () => {
   });
 
   it("covers the accessible editor contract and safe cancellation", () => {
-    expect(getAvatarEditorA11yContract()).toEqual({ role: "dialog", ariaModal: true, requiresInitialFocus: true });
+    expect(getAvatarEditorA11yContract()).toEqual({
+      role: "dialog",
+      ariaModal: true,
+      requiresInitialFocus: true,
+    });
     expect(isAvatarEditorEscapeKey("Escape")).toBe(true);
     expect(isAvatarEditorEscapeKey("Enter")).toBe(false);
     expect(canApplyAvatarCrop(null)).toBe(false);
@@ -35,8 +54,17 @@ describe("CyberCall profile settings", () => {
   });
 
   it("rejects non-images and avatars larger than 5 MB", () => {
-    expect(validateProfileAvatarFile({ type: "application/pdf", size: 1024 })).toContain("imagem");
-    expect(validateProfileAvatarFile({ type: "image/png", size: 5 * 1024 * 1024 + 1 })).toContain("5 MB");
-    expect(validateProfileAvatarFile({ type: "image/webp", size: 1024 })).toBeNull();
+    expect(
+      validateProfileAvatarFile({ type: "application/pdf", size: 1024 })
+    ).toContain("imagem");
+    expect(
+      validateProfileAvatarFile({
+        type: "image/png",
+        size: 5 * 1024 * 1024 + 1,
+      })
+    ).toContain("5 MB");
+    expect(
+      validateProfileAvatarFile({ type: "image/webp", size: 1024 })
+    ).toBeNull();
   });
 });

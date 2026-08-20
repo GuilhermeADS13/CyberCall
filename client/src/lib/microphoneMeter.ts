@@ -8,7 +8,10 @@ export function normalizeMicrophoneSensitivity(value: number): number {
   return Math.min(200, Math.max(50, Math.round(value)));
 }
 
-export function normalizeAudioLevel(samples: Uint8Array, sensitivity = 100): number {
+export function normalizeAudioLevel(
+  samples: Uint8Array,
+  sensitivity = 100
+): number {
   if (samples.length === 0) return 0;
   let sum = 0;
   for (let index = 0; index < samples.length; index += 1) {
@@ -20,8 +23,16 @@ export function normalizeAudioLevel(samples: Uint8Array, sensitivity = 100): num
 }
 
 type AudioContextLike = {
-  createMediaStreamSource: (stream: MediaStream) => { connect: (node: unknown) => void; disconnect?: () => void };
-  createAnalyser: () => { fftSize: number; getByteTimeDomainData: (data: Uint8Array) => void; connect?: (node: unknown) => void; disconnect?: () => void };
+  createMediaStreamSource: (stream: MediaStream) => {
+    connect: (node: unknown) => void;
+    disconnect?: () => void;
+  };
+  createAnalyser: () => {
+    fftSize: number;
+    getByteTimeDomainData: (data: Uint8Array) => void;
+    connect?: (node: unknown) => void;
+    disconnect?: () => void;
+  };
   close?: () => Promise<void>;
   resume?: () => Promise<void>;
 };
@@ -31,7 +42,12 @@ type MeterWindow = typeof globalThis & {
   webkitAudioContext?: new () => AudioContextLike;
 };
 
-export function createMicrophoneMeter(stream: MediaStream, onLevel: (level: number) => void, runtime: MeterWindow = globalThis as MeterWindow, sensitivity = 100): MicrophoneMeter {
+export function createMicrophoneMeter(
+  stream: MediaStream,
+  onLevel: (level: number) => void,
+  runtime: MeterWindow = globalThis as MeterWindow,
+  sensitivity = 100
+): MicrophoneMeter {
   const AudioContextCtor = runtime.AudioContext || runtime.webkitAudioContext;
   if (!AudioContextCtor) return { supported: false, close: () => undefined };
 
@@ -44,13 +60,22 @@ export function createMicrophoneMeter(stream: MediaStream, onLevel: (level: numb
   let closed = false;
   let frame: number | ReturnType<typeof setTimeout> | undefined;
   const schedule = (callback: () => void) => {
-    const raf = (runtime as typeof globalThis & { requestAnimationFrame?: (cb: FrameRequestCallback) => number }).requestAnimationFrame;
+    const raf = (
+      runtime as typeof globalThis & {
+        requestAnimationFrame?: (cb: FrameRequestCallback) => number;
+      }
+    ).requestAnimationFrame;
     if (raf) return raf(() => callback());
     return setTimeout(callback, 1000 / 30);
   };
   const cancel = (handle: number | ReturnType<typeof setTimeout>) => {
-    const caf = (runtime as typeof globalThis & { cancelAnimationFrame?: (id: number) => void }).cancelAnimationFrame;
-    if (caf && typeof handle === "number") caf(handle); else clearTimeout(handle);
+    const caf = (
+      runtime as typeof globalThis & {
+        cancelAnimationFrame?: (id: number) => void;
+      }
+    ).cancelAnimationFrame;
+    if (caf && typeof handle === "number") caf(handle);
+    else clearTimeout(handle);
   };
   const tick = () => {
     if (closed) return;
