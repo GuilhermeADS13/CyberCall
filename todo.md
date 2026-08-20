@@ -37,3 +37,8 @@
 - [x] Adicionar microinterações de hover, foco, seleção de comunidade e troca de canal.
 - [x] Adicionar funcionalidades sociais prioritárias além do chat: busca melhorada, presença e atalhos de navegação.
 - [x] Validar `prefers-reduced-motion`, performance via code-splitting/manualChunks, mobile, testes e build.
+- [x] Criar layout navegável para salas de voz e vídeo.
+- [x] Adicionar participantes, estados de microfone/câmera e indicador de fala.
+- [x] Adicionar controles de entrar, sair, mutar, câmera, compartilhar tela e configurações.
+- [x] Validar acessibilidade, responsividade, estados vazios e build.
+- [x] Manter WebRTC real como etapa posterior, sem simular conexão persistente no backend.
