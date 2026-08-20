@@ -1,4 +1,12 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import {
+  index,
+  int,
+  mysqlEnum,
+  mysqlTable,
+  text,
+  timestamp,
+  varchar,
+} from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -25,103 +33,185 @@ export const users = mysqlTable("users", {
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
-export const communities = mysqlTable("communities", {
-  id: int("id").autoincrement().primaryKey(),
-  ownerId: int("ownerId").notNull(),
-  name: varchar("name", { length: 120 }).notNull(),
-  slug: varchar("slug", { length: 140 }).notNull().unique(),
-  description: text("description"),
-  accent: varchar("accent", { length: 16 }).default("#6fffe9").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
+export const communities = mysqlTable(
+  "communities",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    ownerId: int("ownerId").notNull(),
+    name: varchar("name", { length: 120 }).notNull(),
+    slug: varchar("slug", { length: 140 }).notNull().unique(),
+    description: text("description"),
+    accent: varchar("accent", { length: 16 }).default("#6fffe9").notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  table => [index("communities_owner_idx").on(table.ownerId)]
+);
 
-export const communityMembers = mysqlTable("communityMembers", {
-  id: int("id").autoincrement().primaryKey(),
-  communityId: int("communityId").notNull(),
-  userId: int("userId").notNull(),
-  memberRole: mysqlEnum("memberRole", ["owner", "moderator", "member"]).default("member").notNull(),
-  status: mysqlEnum("status", ["online", "away", "offline"]).default("online").notNull(),
-  joinedAt: timestamp("joinedAt").defaultNow().notNull(),
-});
+export const communityMembers = mysqlTable(
+  "communityMembers",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    communityId: int("communityId").notNull(),
+    userId: int("userId").notNull(),
+    memberRole: mysqlEnum("memberRole", ["owner", "moderator", "member"])
+      .default("member")
+      .notNull(),
+    status: mysqlEnum("status", ["online", "away", "offline"])
+      .default("online")
+      .notNull(),
+    joinedAt: timestamp("joinedAt").defaultNow().notNull(),
+  },
+  table => [
+    index("communityMembers_community_user_idx").on(
+      table.communityId,
+      table.userId
+    ),
+    index("communityMembers_user_idx").on(table.userId),
+  ]
+);
 
-export const channels = mysqlTable("channels", {
-  id: int("id").autoincrement().primaryKey(),
-  communityId: int("communityId").notNull(),
-  name: varchar("name", { length: 80 }).notNull(),
-  channelType: mysqlEnum("channelType", ["text", "announcement", "voice"]).default("text").notNull(),
-  position: int("position").default(0).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
+export const channels = mysqlTable(
+  "channels",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    communityId: int("communityId").notNull(),
+    name: varchar("name", { length: 80 }).notNull(),
+    channelType: mysqlEnum("channelType", ["text", "announcement", "voice"])
+      .default("text")
+      .notNull(),
+    position: int("position").default(0).notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  table => [
+    index("channels_community_position_idx").on(
+      table.communityId,
+      table.position
+    ),
+  ]
+);
 
-export const directMessages = mysqlTable("directMessages", {
-  id: int("id").autoincrement().primaryKey(),
-  senderId: int("senderId").notNull(),
-  recipientId: int("recipientId").notNull(),
-  body: text("body").notNull(),
-  attachmentKey: varchar("attachmentKey", { length: 512 }),
-  attachmentUrl: varchar("attachmentUrl", { length: 768 }),
-  attachmentName: varchar("attachmentName", { length: 255 }),
-  attachmentMimeType: varchar("attachmentMimeType", { length: 120 }),
-  attachmentSize: int("attachmentSize"),
-  readAt: timestamp("readAt"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
+export const directMessages = mysqlTable(
+  "directMessages",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    senderId: int("senderId").notNull(),
+    recipientId: int("recipientId").notNull(),
+    body: text("body").notNull(),
+    attachmentKey: varchar("attachmentKey", { length: 512 }),
+    attachmentUrl: varchar("attachmentUrl", { length: 768 }),
+    attachmentName: varchar("attachmentName", { length: 255 }),
+    attachmentMimeType: varchar("attachmentMimeType", { length: 120 }),
+    attachmentSize: int("attachmentSize"),
+    readAt: timestamp("readAt"),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  table => [
+    index("directMessages_pair_idx").on(
+      table.senderId,
+      table.recipientId,
+      table.createdAt
+    ),
+    index("directMessages_recipient_idx").on(
+      table.recipientId,
+      table.createdAt
+    ),
+  ]
+);
 
-export const attachments = mysqlTable("attachments", {
-  id: int("id").autoincrement().primaryKey(),
-  ownerId: int("ownerId").notNull(),
-  key: varchar("key", { length: 512 }).notNull().unique(),
-  url: varchar("url", { length: 768 }).notNull(),
-  name: varchar("name", { length: 255 }).notNull(),
-  mimeType: varchar("mimeType", { length: 120 }).notNull(),
-  size: int("size").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
+export const attachments = mysqlTable(
+  "attachments",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    ownerId: int("ownerId").notNull(),
+    key: varchar("key", { length: 512 }).notNull().unique(),
+    url: varchar("url", { length: 768 }).notNull(),
+    name: varchar("name", { length: 255 }).notNull(),
+    mimeType: varchar("mimeType", { length: 120 }).notNull(),
+    size: int("size").notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  table => [index("attachments_owner_idx").on(table.ownerId)]
+);
 
-export const notifications = mysqlTable("notifications", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull(),
-  kind: varchar("kind", { length: 32 }).notNull(),
-  title: varchar("title", { length: 160 }).notNull(),
-  body: text("body").notNull(),
-  readAt: timestamp("readAt"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
+export const notifications = mysqlTable(
+  "notifications",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    userId: int("userId").notNull(),
+    kind: varchar("kind", { length: 32 }).notNull(),
+    title: varchar("title", { length: 160 }).notNull(),
+    body: text("body").notNull(),
+    readAt: timestamp("readAt"),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  table => [
+    index("notifications_user_created_idx").on(table.userId, table.createdAt),
+  ]
+);
 
-export const roomInvites = mysqlTable("roomInvites", {
-  id: int("id").autoincrement().primaryKey(),
-  communityId: int("communityId").notNull(),
-  roomKey: varchar("roomKey", { length: 160 }).notNull(),
-  roomName: varchar("roomName", { length: 120 }).notNull(),
-  senderId: int("senderId").notNull(),
-  recipientId: int("recipientId").notNull(),
-  status: mysqlEnum("status", ["pending", "accepted", "declined", "expired"]).default("pending").notNull(),
-  expiresAt: timestamp("expiresAt").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  respondedAt: timestamp("respondedAt"),
-});
+export const roomInvites = mysqlTable(
+  "roomInvites",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    communityId: int("communityId").notNull(),
+    roomKey: varchar("roomKey", { length: 160 }).notNull(),
+    roomName: varchar("roomName", { length: 120 }).notNull(),
+    senderId: int("senderId").notNull(),
+    recipientId: int("recipientId").notNull(),
+    status: mysqlEnum("status", ["pending", "accepted", "declined", "expired"])
+      .default("pending")
+      .notNull(),
+    expiresAt: timestamp("expiresAt").notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    respondedAt: timestamp("respondedAt"),
+  },
+  table => [
+    index("roomInvites_recipient_status_idx").on(
+      table.recipientId,
+      table.status
+    ),
+    index("roomInvites_community_idx").on(table.communityId),
+  ]
+);
 
-export const messageReactions = mysqlTable("messageReactions", {
-  id: int("id").autoincrement().primaryKey(),
-  messageId: int("messageId").notNull(),
-  userId: int("userId").notNull(),
-  emoji: varchar("emoji", { length: 16 }).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
+export const messageReactions = mysqlTable(
+  "messageReactions",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    messageId: int("messageId").notNull(),
+    userId: int("userId").notNull(),
+    emoji: varchar("emoji", { length: 16 }).notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  table => [
+    index("messageReactions_message_idx").on(table.messageId),
+    index("messageReactions_message_user_idx").on(
+      table.messageId,
+      table.userId
+    ),
+  ]
+);
 
-export const messages = mysqlTable("messages", {
-  id: int("id").autoincrement().primaryKey(),
-  channelId: int("channelId").notNull(),
-  authorId: int("authorId").notNull(),
-  body: text("body").notNull(),
-  attachmentKey: varchar("attachmentKey", { length: 512 }),
-  attachmentUrl: varchar("attachmentUrl", { length: 768 }),
-  attachmentName: varchar("attachmentName", { length: 255 }),
-  attachmentMimeType: varchar("attachmentMimeType", { length: 120 }),
-  attachmentSize: int("attachmentSize"),
-  editedAt: timestamp("editedAt"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
+export const messages = mysqlTable(
+  "messages",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    channelId: int("channelId").notNull(),
+    authorId: int("authorId").notNull(),
+    body: text("body").notNull(),
+    attachmentKey: varchar("attachmentKey", { length: 512 }),
+    attachmentUrl: varchar("attachmentUrl", { length: 768 }),
+    attachmentName: varchar("attachmentName", { length: 255 }),
+    attachmentMimeType: varchar("attachmentMimeType", { length: 120 }),
+    attachmentSize: int("attachmentSize"),
+    editedAt: timestamp("editedAt"),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  table => [
+    index("messages_channel_created_idx").on(table.channelId, table.createdAt),
+    index("messages_author_idx").on(table.authorId),
+  ]
+);
 
 export type Community = typeof communities.$inferSelect;
 export type Channel = typeof channels.$inferSelect;
