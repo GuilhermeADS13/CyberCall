@@ -315,3 +315,12 @@
 - [x] Executar validações e preparar commit com o chat da chamada e o indicador de digitação.
 - [x] Enviar o commit para `GuilhermeADS13/CyberCall` e verificar os arquivos remotos.
 - [x] Registrar o commit remoto `bfc58b9b6d58ee730e0ff7d4dbbd479bbe756a7a`; workflow CI permanece ausente por decisão anterior.
+
+
+## Preparação para Render
+
+- [x] Avaliar compatibilidade do backend Express/tRPC/WebSocket com o Render.
+- [x] Preparar configuração de build e start sem hardcode de porta.
+- [x] Documentar variáveis obrigatórias, banco, OAuth, WebSocket e armazenamento.
+- [ ] Validar a preparação e publicar a configuração no GitHub.
+- [x] Entregar instruções para conectar o repositório e concluir o deploy no Render.
