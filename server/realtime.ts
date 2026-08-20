@@ -9,29 +9,38 @@ export const realtimePath = "/api/realtime";
 
 export type RealtimeEvent = {
   id: string;
-  type: "message.created" | "message.updated" | "message.deleted" | "dm.created" | "presence.updated";
+  type: "message.created" | "message.updated" | "message.deleted" | "dm.created" | "presence.updated" | "voice.members" | "voice.peer.joined" | "voice.peer.left" | "voice.offer" | "voice.answer" | "voice.ice";
   occurredAt: number;
-  scope: { communityId?: number; channelId?: number; userIds?: number[] };
+  scope: { communityId?: number; channelId?: number; roomKey?: string; userIds?: number[] };
   payload: unknown;
 };
 
 type Subscription = { kind: "community" | "channel" | "dm"; id: number };
-type RealtimeClient = { socket: WebSocket; user: AuthenticatedUser; subscriptions: Subscription[] };
+type RealtimeClient = { socket: WebSocket; user: AuthenticatedUser; subscriptions: Subscription[]; voiceRooms: Set<string> };
 
 type RealtimeCommand =
   | { type: "subscribe"; communityId?: number; channelId?: number; dmUserId?: number }
   | { type: "unsubscribe"; communityId?: number; channelId?: number; dmUserId?: number }
   | { type: "presence.set"; status: "online" | "away" | "busy" | "invisible" }
+  | { type: "voice.join"; channelId: number; roomKey: string }
+  | { type: "voice.leave"; channelId: number; roomKey: string }
+  | { type: "voice.offer" | "voice.answer"; channelId: number; roomKey: string; targetUserId: number; sdp: { type: string; sdp: string } }
+  | { type: "voice.ice"; channelId: number; roomKey: string; targetUserId: number; candidate: Record<string, unknown> }
   | { type: "ping" };
 
 const commandSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("subscribe"), communityId: z.number().int().positive().optional(), channelId: z.number().int().positive().optional(), dmUserId: z.number().int().positive().optional() }),
   z.object({ type: z.literal("unsubscribe"), communityId: z.number().int().positive().optional(), channelId: z.number().int().positive().optional(), dmUserId: z.number().int().positive().optional() }),
   z.object({ type: z.literal("presence.set"), status: z.enum(["online", "away", "busy", "invisible"]) }),
+  z.object({ type: z.literal("voice.join"), channelId: z.number().int().positive(), roomKey: z.string().min(1).max(120) }),
+  z.object({ type: z.literal("voice.leave"), channelId: z.number().int().positive(), roomKey: z.string().min(1).max(120) }),
+  z.object({ type: z.union([z.literal("voice.offer"), z.literal("voice.answer")]), channelId: z.number().int().positive(), roomKey: z.string().min(1).max(120), targetUserId: z.number().int().positive(), sdp: z.object({ type: z.string().min(1).max(32), sdp: z.string().min(1).max(200_000) }) }),
+  z.object({ type: z.literal("voice.ice"), channelId: z.number().int().positive(), roomKey: z.string().min(1).max(120), targetUserId: z.number().int().positive(), candidate: z.record(z.string(), z.unknown()) }),
   z.object({ type: z.literal("ping") }),
 ]);
 
 const clients = new Set<RealtimeClient>();
+const voiceRooms = new Map<string, Set<number>>();
 
 export function getBearerTokenFromWebSocketProtocols(protocolHeader: string | string[] | undefined) {
   const protocol = Array.isArray(protocolHeader) ? protocolHeader[0] : protocolHeader;
@@ -66,6 +75,47 @@ function protocolError(socket: WebSocket, message: string) {
   send(socket, { type: "error", code: "BAD_COMMAND", message });
 }
 
+function voiceRoomKey(channelId: number, roomKey: string) {
+  return `${channelId}:${roomKey}`;
+}
+
+function findClientByUserId(userId: number) {
+  return Array.from(clients).find((client) => client.user.id === userId);
+}
+
+function sendVoiceEvent(socket: WebSocket, type: RealtimeEvent["type"], channelId: number, roomKey: string, payload: unknown) {
+  send(socket, { id: nextEventId(), type, occurredAt: Date.now(), scope: { channelId, roomKey }, payload });
+}
+
+function voiceMembers(roomId: string) {
+  const members = Array.from(voiceRooms.get(roomId) || []);
+  return members.map((userId) => {
+    const client = findClientByUserId(userId);
+    return { userId, name: client?.user.name || "Piloto" };
+  });
+}
+
+function broadcastVoicePeerLeft(client: RealtimeClient, roomId: string, channelId: number, roomKey: string) {
+  const peers = voiceRooms.get(roomId);
+  peers?.delete(client.user.id);
+  if (!peers || peers.size === 0) {
+    voiceRooms.delete(roomId);
+    return;
+  }
+  peers.forEach((userId) => {
+    const peer = findClientByUserId(userId);
+    if (peer) sendVoiceEvent(peer.socket, "voice.peer.left", channelId, roomKey, { userId: client.user.id });
+  });
+}
+
+function leaveAllVoiceRooms(client: RealtimeClient) {
+  client.voiceRooms.forEach((roomId) => {
+    const [channelIdText, ...roomKeyParts] = roomId.split(":");
+    broadcastVoicePeerLeft(client, roomId, Number(channelIdText), roomKeyParts.join(":"));
+  });
+  client.voiceRooms.clear();
+}
+
 export function matchesRealtimeSubscription(subscription: Subscription, eventType: RealtimeEvent["type"], scope: RealtimeEvent["scope"], userId: number) {
   if (eventType === "dm.created") return scope.userIds?.includes(userId) ?? false;
   if (eventType === "presence.updated") return subscription.kind === "community" && scope.communityId === subscription.id;
@@ -76,7 +126,9 @@ function matchingSubscription(client: RealtimeClient, event: RealtimeEvent) {
   return client.subscriptions.some((subscription) => matchesRealtimeSubscription(subscription, event.type, event.scope, client.user.id));
 }
 
-async function authorizeSubscription(userId: number, command: { type: "subscribe" | "unsubscribe"; communityId?: number; channelId?: number; dmUserId?: number }): Promise<Subscription | null> {
+type SubscriptionCommand = Extract<RealtimeCommand, { type: "subscribe" }> | Extract<RealtimeCommand, { type: "unsubscribe" }>;
+
+async function authorizeSubscription(userId: number, command: SubscriptionCommand): Promise<Subscription | null> {
   if (command.channelId) {
     const communityId = await getChannelCommunityId(command.channelId);
     if (!communityId || !(await isCommunityMember(communityId, userId))) return null;
@@ -102,7 +154,48 @@ async function handleCommand(client: RealtimeClient, command: RealtimeCommand) {
     send(client.socket, { type: "presence.ack", payload });
     return;
   }
-  const subscription = await authorizeSubscription(client.user.id, command);
+  if (command.type === "voice.join" || command.type === "voice.leave" || command.type === "voice.offer" || command.type === "voice.answer" || command.type === "voice.ice") {
+    const communityId = await getChannelCommunityId(command.channelId);
+    if (!communityId || !(await isCommunityMember(communityId, client.user.id))) {
+      protocolError(client.socket, "Você não pode sinalizar nesta sala.");
+      return;
+    }
+    const roomId = voiceRoomKey(command.channelId, command.roomKey);
+    if (command.type === "voice.join") {
+      const peers = voiceRooms.get(roomId) || new Set<number>();
+      const previousPeers = Array.from(peers);
+      peers.add(client.user.id);
+      voiceRooms.set(roomId, peers);
+      client.voiceRooms.add(roomId);
+      sendVoiceEvent(client.socket, "voice.members", command.channelId, command.roomKey, { members: voiceMembers(roomId).filter((member) => member.userId !== client.user.id) });
+      previousPeers.forEach((userId) => {
+        const peer = findClientByUserId(userId);
+        if (peer) sendVoiceEvent(peer.socket, "voice.peer.joined", command.channelId, command.roomKey, { userId: client.user.id, name: client.user.name || "Piloto" });
+      });
+      return;
+    }
+    if (command.type === "voice.leave") {
+      if (client.voiceRooms.has(roomId)) {
+        broadcastVoicePeerLeft(client, roomId, command.channelId, command.roomKey);
+        client.voiceRooms.delete(roomId);
+      }
+      return;
+    }
+    if (!client.voiceRooms.has(roomId)) {
+      protocolError(client.socket, "Entre na sala antes de enviar sinalização.");
+      return;
+    }
+    const target = findClientByUserId(command.targetUserId);
+    if (!target || !target.voiceRooms.has(roomId)) {
+      protocolError(client.socket, "O peer alvo não está nesta sala.");
+      return;
+    }
+    if (command.type === "voice.offer") sendVoiceEvent(target.socket, "voice.offer", command.channelId, command.roomKey, { fromUserId: client.user.id, sdp: command.sdp });
+    if (command.type === "voice.answer") sendVoiceEvent(target.socket, "voice.answer", command.channelId, command.roomKey, { fromUserId: client.user.id, sdp: command.sdp });
+    if (command.type === "voice.ice") sendVoiceEvent(target.socket, "voice.ice", command.channelId, command.roomKey, { fromUserId: client.user.id, candidate: command.candidate });
+    return;
+  }
+  const subscription = await authorizeSubscription(client.user.id, command as SubscriptionCommand);
   if (!subscription) {
     protocolError(client.socket, "Inscrição não autorizada para este sinal.");
     return;
@@ -127,7 +220,7 @@ async function authenticateConnection(socket: WebSocket, request: IncomingMessag
   try {
     const user = await sdk.authenticateRequest(request as unknown as Request);
     if (user.isCron || user.id <= 0) throw new Error("Realtime is not available to scheduled tasks");
-    const client: RealtimeClient = { socket, user, subscriptions: [] };
+    const client: RealtimeClient = { socket, user, subscriptions: [], voiceRooms: new Set() };
     clients.add(client);
     socket.on("message", (raw) => {
       let parsed: unknown;
@@ -136,8 +229,8 @@ async function authenticateConnection(socket: WebSocket, request: IncomingMessag
       if (!result.success) { protocolError(socket, "Comando realtime inválido."); return; }
       void handleCommand(client, result.data);
     });
-    socket.on("close", () => clients.delete(client));
-    socket.on("error", () => clients.delete(client));
+    socket.on("close", () => { leaveAllVoiceRooms(client); clients.delete(client); });
+    socket.on("error", () => { leaveAllVoiceRooms(client); clients.delete(client); });
     send(socket, { type: "ready", userId: user.id, occurredAt: Date.now() });
   } catch {
     socket.close(1008, "Sessão inválida");
@@ -175,7 +268,8 @@ export function getRealtimePresence(userId: number) {
 }
 
 export function resetRealtimeStateForTests() {
-  clients.forEach((client) => client.socket.close());
+  clients.forEach((client) => { leaveAllVoiceRooms(client); client.socket.close(); });
   clients.clear();
+  voiceRooms.clear();
   presenceByUser.clear();
 }

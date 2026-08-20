@@ -202,3 +202,13 @@
 - [x] Exercitar subscribe de comunidade com snapshot inicial e update posterior de presença entregue ao cliente.
 - [x] Exercitar o handshake WebSocket com Bearer fallback através do servidor, não apenas os helpers de construção.
 - [x] Rodar validação final, marcar itens e salvar checkpoint realtime.
+
+
+## Sinalização WebRTC para salas
+
+- [x] Mapear a sala de voz/vídeo atual, os controles existentes e definir contrato de eventos offer/answer/ICE/peer.
+- [x] Adicionar eventos de signaling autenticados ao WebSocket com isolamento por sala e autorização de membro.
+- [x] Implementar cliente WebRTC com getUserMedia, RTCPeerConnection, ICE candidates, reconexão e limpeza de tracks.
+- [x] Conectar microfone, câmera, entrada/saída e estado visual de participantes à mídia real, mantendo fallback acessível; compartilhamento de tela permanece separado.
+- [x] Cobrir signaling, autorização, isolamento, reconexão, permissões de mídia e cleanup com testes Vitest.
+- [x] Validar check, testes, build e revisão responsiva; revisão registrada em `webrtc-visual-review.md`.

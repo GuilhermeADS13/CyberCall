@@ -2,14 +2,23 @@ import { COOKIE_NAME } from "@shared/const";
 
 export type RealtimeEvent = {
   id: string;
-  type: "message.created" | "message.updated" | "message.deleted" | "dm.created" | "presence.updated";
+  type: "message.created" | "message.updated" | "message.deleted" | "dm.created" | "presence.updated" | "voice.members" | "voice.peer.joined" | "voice.peer.left" | "voice.offer" | "voice.answer" | "voice.ice";
   occurredAt: number;
-  scope: { communityId?: number; channelId?: number; userIds?: number[] };
+  scope: { communityId?: number; channelId?: number; roomKey?: string; userIds?: number[] };
   payload: any;
 };
 
 type RealtimeStatus = "connecting" | "connected" | "reconnecting" | "closed";
 type Subscription = { communityId?: number; channelId?: number; dmUserId?: number };
+
+export type RealtimeCommand =
+  | { type: "subscribe"; communityId?: number; channelId?: number; dmUserId?: number }
+  | { type: "unsubscribe"; communityId?: number; channelId?: number; dmUserId?: number }
+  | { type: "presence.set"; status: "online" | "away" | "busy" | "invisible" }
+  | { type: "voice.join" | "voice.leave"; channelId: number; roomKey: string }
+  | { type: "voice.offer" | "voice.answer"; channelId: number; roomKey: string; targetUserId: number; sdp: { type: string; sdp: string } }
+  | { type: "voice.ice"; channelId: number; roomKey: string; targetUserId: number; candidate: RTCIceCandidateInit }
+  | { type: "ping" };
 
 type RealtimeClientOptions = {
   subscriptions: Subscription[];
@@ -120,6 +129,9 @@ export function createRealtimeClient({ subscriptions, initialPresence, onEvent, 
     },
     setPresence(status: "online" | "away" | "busy" | "invisible") {
       send({ type: "presence.set", status });
+    },
+    sendCommand(command: RealtimeCommand) {
+      send(command);
     },
   };
 }
