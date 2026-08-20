@@ -136,3 +136,17 @@
 - [x] Integrar chatbot de dúvidas frequentes com contexto seguro da CyberCall, estados de carregamento e fallback.
 - [x] Manter bloqueios de segurança de anexos/PDFs até scanner antimalware configurado e documentar os fluxos seguros liberados em `security-upload-policy.md`.
 - [x] Adicionar testes do chatbot e responsividade/contratos, validar check, testes, build e checkpoint.
+
+- [x] Reestruturar a navegação de comunidades com busca, ações de convite/evento, categorias e badges de não lidas.
+- [x] Melhorar o rodapé de perfil com presença, status e atalho funcional para a aba de configurações.
+- [x] Aplicar a direção original de pôster neon ao shell sem copiar marca, personagens ou textos da referência.
+- [x] Validar desktop/tablet/mobile, teclado, testes e build; checkpoint desta etapa será salvo em seguida.
+
+- [x] Conectar o ícone de configurações do rodapé de perfil à aba Configurações do painel.
+- [x] Implementar foco inicial, Escape, fechamento e retorno de foco no drawer mobile de comunidades.
+- [x] Testar teclado do drawer com abertura, foco inicial, Escape e retorno ao gatilho; checkpoint será salvo após essa validação.
+
+- [x] Extrair helpers integrados de abertura e fechamento do drawer mobile com gatilho e foco restaurável.
+- [x] Testar a sequência completa no mesmo caso: abertura pelo gatilho, foco inicial, Escape e restauração do foco.
+
+- [x] Fazer `openMobileNavState` focar o drawer no momento da abertura e testar, no mesmo fluxo, abertura pelo gatilho, foco inicial, Escape e retorno ao gatilho.
