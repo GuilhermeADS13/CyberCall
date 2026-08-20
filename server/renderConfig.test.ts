@@ -1,13 +1,21 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
-const renderConfig = readFileSync(new URL("../render.yaml", import.meta.url), "utf8");
-const deployGuide = readFileSync(new URL("../RENDER_DEPLOY.md", import.meta.url), "utf8");
+const renderConfig = readFileSync(
+  new URL("../render.yaml", import.meta.url),
+  "utf8"
+);
+const deployGuide = readFileSync(
+  new URL("../docs/RENDER_DEPLOY.md", import.meta.url),
+  "utf8"
+);
 
 describe("Render deployment preparation", () => {
   it("keeps production build and start commands compatible with the Node service", () => {
     expect(renderConfig).toContain("runtime: node");
-    expect(renderConfig).toContain("buildCommand: pnpm install --frozen-lockfile && pnpm build");
+    expect(renderConfig).toContain(
+      "buildCommand: pnpm install --frozen-lockfile && pnpm build"
+    );
     expect(renderConfig).toContain("startCommand: pnpm start");
     expect(deployGuide).toContain("process.env.PORT");
     expect(deployGuide).toContain("/api/realtime");
