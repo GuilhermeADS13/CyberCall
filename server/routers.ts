@@ -4,23 +4,77 @@ import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { createCommunity, createDirectMessage, createMessage, createRoomInvite, deleteMessage, getCommunityOverview, getMessageRealtimeTarget, getOwnedAttachment, isCommunityMember, listCommunities, listDirectMessages, listMessages, listNotifications, listRoomInvites, markNotificationRead, respondRoomInvite, toggleMessageReaction, updateMessage } from "./db";
+import {
+  createCommunity,
+  createDirectMessage,
+  createMessage,
+  createRoomInvite,
+  deleteMessage,
+  getChannelCommunityId,
+  getCommunityOverview,
+  getMessageRealtimeTarget,
+  getOwnedAttachment,
+  isCommunityMember,
+  listCommunities,
+  listDirectMessages,
+  listMessages,
+  listNotifications,
+  listRoomInvites,
+  markNotificationRead,
+  respondRoomInvite,
+  toggleMessageReaction,
+  updateMessage,
+} from "./db";
 import { publishRealtimeEvent } from "./realtime";
 import { invokeLLM } from "./_core/llm";
 import { buildHelpBotMessages } from "./helpBot";
 
-const attachmentInput = z.object({ id: z.number().int().positive(), key: z.string().min(1).max(512), url: z.string().startsWith("/manus-storage/").max(768), name: z.string().min(1).max(255), mimeType: z.string().min(1).max(120), size: z.number().int().positive().max(10 * 1024 * 1024) }).optional();
+const attachmentInput = z
+  .object({
+    id: z.number().int().positive(),
+    key: z.string().min(1).max(512),
+    url: z.string().startsWith("/manus-storage/").max(768),
+    name: z.string().min(1).max(255),
+    mimeType: z.string().min(1).max(120),
+    size: z
+      .number()
+      .int()
+      .positive()
+      .max(10 * 1024 * 1024),
+  })
+  .optional();
 
 export const appRouter = router({
-    // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
+  // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
   system: systemRouter,
   helpBot: router({
-    ask: publicProcedure.input(z.object({ messages: z.array(z.object({ role: z.enum(["user", "assistant"]), content: z.string().trim().min(1).max(1200) })).min(1).max(8) })).mutation(async ({ input }) => {
-      const response = await invokeLLM({ messages: buildHelpBotMessages(input.messages) as any });
-      const content = response.choices?.[0]?.message?.content;
-      if (typeof content !== "string" || !content.trim()) throw new TRPCError({ code: "SERVICE_UNAVAILABLE", message: "O assistente está sem sinal. Tente novamente em instantes." });
-      return { content: content.trim() };
-    }),
+    ask: publicProcedure
+      .input(
+        z.object({
+          messages: z
+            .array(
+              z.object({
+                role: z.enum(["user", "assistant"]),
+                content: z.string().trim().min(1).max(1200),
+              })
+            )
+            .min(1)
+            .max(8),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const response = await invokeLLM({
+          messages: buildHelpBotMessages(input.messages) as any,
+        });
+        const content = response.choices?.[0]?.message?.content;
+        if (typeof content !== "string" || !content.trim())
+          throw new TRPCError({
+            code: "SERVICE_UNAVAILABLE",
+            message:
+              "O assistente está sem sinal. Tente novamente em instantes.",
+          });
+        return { content: content.trim() };
+      }),
   }),
 
   auth: router({
@@ -36,69 +90,272 @@ export const appRouter = router({
 
   roomInvite: router({
     list: protectedProcedure.query(({ ctx }) => listRoomInvites(ctx.user.id)),
-    create: protectedProcedure.input(z.object({ recipientId: z.number().int().positive(), communityId: z.number().int().positive(), roomKey: z.string().trim().min(1).max(160), roomName: z.string().trim().min(1).max(120) })).mutation(async ({ ctx, input }) => { if (ctx.user.role !== "admin" && !(await isCommunityMember(input.communityId, ctx.user.id))) throw new TRPCError({ code: "FORBIDDEN", message: "Você precisa ser membro da comunidade para emitir convites." }); return createRoomInvite(ctx.user.id, input.recipientId, input.communityId, input.roomKey, input.roomName); }),
-    respond: protectedProcedure.input(z.object({ inviteId: z.number().int().positive(), status: z.enum(["accepted", "declined"]) })).mutation(async ({ ctx, input }) => {
-      try { return await respondRoomInvite(input.inviteId, ctx.user.id, input.status); }
-      catch (error) {
-        if (error instanceof Error && error.message.includes("not found")) throw new TRPCError({ code: "NOT_FOUND", message: "Convite não encontrado." });
-        if (error instanceof Error && (error.message.includes("already") || error.message.includes("expired"))) throw new TRPCError({ code: "BAD_REQUEST", message: "Este convite não está mais disponível." });
-        throw error;
-      }
-    }),
+    create: protectedProcedure
+      .input(
+        z.object({
+          recipientId: z.number().int().positive(),
+          communityId: z.number().int().positive(),
+          roomKey: z.string().trim().min(1).max(160),
+          roomName: z.string().trim().min(1).max(120),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        if (
+          ctx.user.role !== "admin" &&
+          !(await isCommunityMember(input.communityId, ctx.user.id))
+        )
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message:
+              "Você precisa ser membro da comunidade para emitir convites.",
+          });
+        return createRoomInvite(
+          ctx.user.id,
+          input.recipientId,
+          input.communityId,
+          input.roomKey,
+          input.roomName
+        );
+      }),
+    respond: protectedProcedure
+      .input(
+        z.object({
+          inviteId: z.number().int().positive(),
+          status: z.enum(["accepted", "declined"]),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        try {
+          return await respondRoomInvite(
+            input.inviteId,
+            ctx.user.id,
+            input.status
+          );
+        } catch (error) {
+          if (error instanceof Error && error.message.includes("not found"))
+            throw new TRPCError({
+              code: "NOT_FOUND",
+              message: "Convite não encontrado.",
+            });
+          if (
+            error instanceof Error &&
+            (error.message.includes("already") ||
+              error.message.includes("expired"))
+          )
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "Este convite não está mais disponível.",
+            });
+          throw error;
+        }
+      }),
   }),
 
   notification: router({
     list: protectedProcedure.query(({ ctx }) => listNotifications(ctx.user.id)),
-    markRead: protectedProcedure.input(z.object({ notificationId: z.number().int().positive() })).mutation(({ ctx, input }) => markNotificationRead(input.notificationId, ctx.user.id)),
+    markRead: protectedProcedure
+      .input(z.object({ notificationId: z.number().int().positive() }))
+      .mutation(({ ctx, input }) =>
+        markNotificationRead(input.notificationId, ctx.user.id)
+      ),
   }),
 
   message: router({
-    update: protectedProcedure.input(z.object({ messageId: z.number().int().positive(), body: z.string().trim().min(1).max(4000) })).mutation(async ({ ctx, input }) => {
-      try {
-        const result = await updateMessage(input.messageId, ctx.user.id, input.body);
-        const target = await getMessageRealtimeTarget(input.messageId);
-        if (target) await publishRealtimeEvent({ type: "message.updated", scope: { communityId: target.communityId, channelId: target.channelId }, payload: { messageId: input.messageId, body: input.body, editedAt: Date.now() } });
-        return result;
-      }
-      catch (error) { if (error instanceof Error && error.message.startsWith("Only")) throw new TRPCError({ code: "FORBIDDEN", message: "Somente o autor pode editar esta mensagem." }); throw error; }
-    }),
-    delete: protectedProcedure.input(z.object({ messageId: z.number().int().positive() })).mutation(async ({ ctx, input }) => {
-      try {
-        const target = await getMessageRealtimeTarget(input.messageId);
-        const result = await deleteMessage(input.messageId, ctx.user.id);
-        if (target) await publishRealtimeEvent({ type: "message.deleted", scope: { communityId: target.communityId, channelId: target.channelId }, payload: { messageId: input.messageId } });
-        return result;
-      }
-      catch (error) { if (error instanceof Error && error.message.startsWith("Only")) throw new TRPCError({ code: "FORBIDDEN", message: "Somente o autor pode excluir esta mensagem." }); throw error; }
-    }),
-    toggleReaction: protectedProcedure.input(z.object({ messageId: z.number().int().positive(), emoji: z.string().min(1).max(16) })).mutation(({ ctx, input }) => toggleMessageReaction(input.messageId, ctx.user.id, input.emoji)),
+    update: protectedProcedure
+      .input(
+        z.object({
+          messageId: z.number().int().positive(),
+          body: z.string().trim().min(1).max(4000),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        try {
+          const result = await updateMessage(
+            input.messageId,
+            ctx.user.id,
+            input.body
+          );
+          const target = await getMessageRealtimeTarget(input.messageId);
+          if (target)
+            await publishRealtimeEvent({
+              type: "message.updated",
+              scope: {
+                communityId: target.communityId,
+                channelId: target.channelId,
+              },
+              payload: {
+                messageId: input.messageId,
+                body: input.body,
+                editedAt: Date.now(),
+              },
+            });
+          return result;
+        } catch (error) {
+          if (error instanceof Error && error.message.startsWith("Only"))
+            throw new TRPCError({
+              code: "FORBIDDEN",
+              message: "Somente o autor pode editar esta mensagem.",
+            });
+          throw error;
+        }
+      }),
+    delete: protectedProcedure
+      .input(z.object({ messageId: z.number().int().positive() }))
+      .mutation(async ({ ctx, input }) => {
+        try {
+          const target = await getMessageRealtimeTarget(input.messageId);
+          const result = await deleteMessage(input.messageId, ctx.user.id);
+          if (target)
+            await publishRealtimeEvent({
+              type: "message.deleted",
+              scope: {
+                communityId: target.communityId,
+                channelId: target.channelId,
+              },
+              payload: { messageId: input.messageId },
+            });
+          return result;
+        } catch (error) {
+          if (error instanceof Error && error.message.startsWith("Only"))
+            throw new TRPCError({
+              code: "FORBIDDEN",
+              message: "Somente o autor pode excluir esta mensagem.",
+            });
+          throw error;
+        }
+      }),
+    toggleReaction: protectedProcedure
+      .input(
+        z.object({
+          messageId: z.number().int().positive(),
+          emoji: z.string().min(1).max(16),
+        })
+      )
+      .mutation(({ ctx, input }) =>
+        toggleMessageReaction(input.messageId, ctx.user.id, input.emoji)
+      ),
   }),
 
   directMessage: router({
-    list: protectedProcedure.input(z.object({ otherUserId: z.number().int().positive() })).query(({ ctx, input }) => listDirectMessages(ctx.user.id, input.otherUserId)),
-    send: protectedProcedure.input(z.object({ recipientId: z.number().int().positive(), body: z.string().trim().min(1).max(4000), attachment: attachmentInput })).mutation(async ({ ctx, input }) => {
-      const attachment = input.attachment ? await getOwnedAttachment(input.attachment.id, ctx.user.id) : undefined;
-      if (input.attachment && !attachment) throw new TRPCError({ code: "FORBIDDEN", message: "Este anexo não pertence à sua sessão." });
-      const message = await createDirectMessage(ctx.user.id, input.recipientId, input.body, attachment);
-      await publishRealtimeEvent({ type: "dm.created", scope: { userIds: [ctx.user.id, input.recipientId] }, payload: message });
-      return message;
-    }),
+    list: protectedProcedure
+      .input(z.object({ otherUserId: z.number().int().positive() }))
+      .query(({ ctx, input }) =>
+        listDirectMessages(ctx.user.id, input.otherUserId)
+      ),
+    send: protectedProcedure
+      .input(
+        z.object({
+          recipientId: z.number().int().positive(),
+          body: z.string().trim().min(1).max(4000),
+          attachment: attachmentInput,
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const attachment = input.attachment
+          ? await getOwnedAttachment(input.attachment.id, ctx.user.id)
+          : undefined;
+        if (input.attachment && !attachment)
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "Este anexo não pertence à sua sessão.",
+          });
+        const message = await createDirectMessage(
+          ctx.user.id,
+          input.recipientId,
+          input.body,
+          attachment
+        );
+        await publishRealtimeEvent({
+          type: "dm.created",
+          scope: { userIds: [ctx.user.id, input.recipientId] },
+          payload: message,
+        });
+        return message;
+      }),
   }),
 
   community: router({
     list: publicProcedure.query(() => listCommunities()),
-    overview: publicProcedure.input(z.object({ communityId: z.number().int().positive() })).query(({ input }) => getCommunityOverview(input.communityId)),
-    messages: publicProcedure.input(z.object({ channelId: z.number().int().positive() })).query(({ ctx, input }) => listMessages(input.channelId, ctx.user?.id ?? 0)),
-    create: protectedProcedure.input(z.object({ name: z.string().min(2).max(120), description: z.string().max(500).optional() })).mutation(({ ctx, input }) => createCommunity(ctx.user.id, input.name, input.description)),
-    sendMessage: protectedProcedure.input(z.object({ communityId: z.number().int().positive(), channelId: z.number().int().positive(), body: z.string().trim().min(1).max(4000), attachment: attachmentInput })).mutation(async ({ ctx, input }) => {
-      const member = await isCommunityMember(input.communityId, ctx.user.id);
-      if (!member) throw new TRPCError({ code: "FORBIDDEN", message: "Você precisa entrar nesta comunidade." });
-      const attachment = input.attachment ? await getOwnedAttachment(input.attachment.id, ctx.user.id) : undefined;
-      if (input.attachment && !attachment) throw new TRPCError({ code: "FORBIDDEN", message: "Este anexo não pertence à sua sessão." });
-      const message = await createMessage(input.channelId, ctx.user.id, input.body, attachment);
-      await publishRealtimeEvent({ type: "message.created", scope: { communityId: input.communityId, channelId: input.channelId }, payload: message });
-      return message;
-    }),
+    // Channels, members and history are community-scoped data: only members may read them.
+    overview: protectedProcedure
+      .input(z.object({ communityId: z.number().int().positive() }))
+      .query(async ({ ctx, input }) => {
+        if (
+          ctx.user.role !== "admin" &&
+          !(await isCommunityMember(input.communityId, ctx.user.id))
+        )
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "Você precisa ser membro desta comunidade.",
+          });
+        return getCommunityOverview(input.communityId);
+      }),
+    messages: protectedProcedure
+      .input(z.object({ channelId: z.number().int().positive() }))
+      .query(async ({ ctx, input }) => {
+        const communityId = await getChannelCommunityId(input.channelId);
+        if (!communityId)
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Canal não encontrado.",
+          });
+        if (
+          ctx.user.role !== "admin" &&
+          !(await isCommunityMember(communityId, ctx.user.id))
+        )
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "Você precisa ser membro desta comunidade.",
+          });
+        return listMessages(input.channelId, ctx.user.id);
+      }),
+    create: protectedProcedure
+      .input(
+        z.object({
+          name: z.string().min(2).max(120),
+          description: z.string().max(500).optional(),
+        })
+      )
+      .mutation(({ ctx, input }) =>
+        createCommunity(ctx.user.id, input.name, input.description)
+      ),
+    sendMessage: protectedProcedure
+      .input(
+        z.object({
+          communityId: z.number().int().positive(),
+          channelId: z.number().int().positive(),
+          body: z.string().trim().min(1).max(4000),
+          attachment: attachmentInput,
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const member = await isCommunityMember(input.communityId, ctx.user.id);
+        if (!member)
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "Você precisa entrar nesta comunidade.",
+          });
+        const attachment = input.attachment
+          ? await getOwnedAttachment(input.attachment.id, ctx.user.id)
+          : undefined;
+        if (input.attachment && !attachment)
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "Este anexo não pertence à sua sessão.",
+          });
+        const message = await createMessage(
+          input.channelId,
+          ctx.user.id,
+          input.body,
+          attachment
+        );
+        await publishRealtimeEvent({
+          type: "message.created",
+          scope: { communityId: input.communityId, channelId: input.channelId },
+          payload: message,
+        });
+        return message;
+      }),
   }),
 });
 

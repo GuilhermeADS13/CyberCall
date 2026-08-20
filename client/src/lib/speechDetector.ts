@@ -11,10 +11,17 @@ export function createSpeechDetector(
   stream: MediaStream,
   onSpeaking: (speaking: boolean, level: number) => void,
   runtime: typeof globalThis = globalThis,
-  options: SpeechDetectorOptions = {},
+  options: SpeechDetectorOptions = {}
 ): SpeechDetector {
-  const AudioContextCtor = (runtime as typeof globalThis & { AudioContext?: new () => any; webkitAudioContext?: new () => any }).AudioContext
-    || (runtime as typeof globalThis & { webkitAudioContext?: new () => any }).webkitAudioContext;
+  const AudioContextCtor =
+    (
+      runtime as typeof globalThis & {
+        AudioContext?: new () => any;
+        webkitAudioContext?: new () => any;
+      }
+    ).AudioContext ||
+    (runtime as typeof globalThis & { webkitAudioContext?: new () => any })
+      .webkitAudioContext;
   if (!AudioContextCtor) return { supported: false, close: () => undefined };
 
   const context = new AudioContextCtor();
@@ -24,23 +31,37 @@ export function createSpeechDetector(
   source.connect(analyser);
   const samples = new Uint8Array(analyser.fftSize);
   const threshold = Math.max(0, Math.min(1, options.threshold ?? 0.075));
-  const releaseThreshold = Math.max(0, Math.min(threshold, options.releaseThreshold ?? threshold * 0.65));
+  const releaseThreshold = Math.max(
+    0,
+    Math.min(threshold, options.releaseThreshold ?? threshold * 0.65)
+  );
   let speaking = false;
   let closed = false;
   let frame: number | ReturnType<typeof setTimeout> | undefined;
   const schedule = (callback: () => void) => {
-    const raf = (runtime as typeof globalThis & { requestAnimationFrame?: (cb: FrameRequestCallback) => number }).requestAnimationFrame;
+    const raf = (
+      runtime as typeof globalThis & {
+        requestAnimationFrame?: (cb: FrameRequestCallback) => number;
+      }
+    ).requestAnimationFrame;
     return raf ? raf(() => callback()) : setTimeout(callback, 1000 / 30);
   };
   const cancel = (handle: number | ReturnType<typeof setTimeout>) => {
-    const caf = (runtime as typeof globalThis & { cancelAnimationFrame?: (id: number) => void }).cancelAnimationFrame;
-    if (caf && typeof handle === "number") caf(handle); else clearTimeout(handle);
+    const caf = (
+      runtime as typeof globalThis & {
+        cancelAnimationFrame?: (id: number) => void;
+      }
+    ).cancelAnimationFrame;
+    if (caf && typeof handle === "number") caf(handle);
+    else clearTimeout(handle);
   };
   const tick = () => {
     if (closed) return;
     analyser.getByteTimeDomainData(samples);
     const level = normalizeAudioLevel(samples);
-    const nextSpeaking = speaking ? level >= releaseThreshold : level >= threshold;
+    const nextSpeaking = speaking
+      ? level >= releaseThreshold
+      : level >= threshold;
     if (nextSpeaking !== speaking) {
       speaking = nextSpeaking;
       onSpeaking(speaking, level);

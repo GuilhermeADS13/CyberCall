@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { authCopy, authModes, getNextAuthTabIndex } from "../client/src/pages/Auth";
+import {
+  authCopy,
+  authModes,
+  getNextAuthTabIndex,
+} from "../client/src/pages/Auth";
 
 describe("auth screen contract", () => {
   it("exposes accessible login and signup modes with actionable copy", () => {

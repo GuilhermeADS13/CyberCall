@@ -10,16 +10,16 @@ Cada sala é vinculada a um canal de voz persistido por `channelId` e a um `room
 
 ## Eventos de sinalização
 
-| Direção | Evento | Conteúdo essencial |
-|---|---|---|
-| Cliente → servidor | `voice.join` | `channelId`, `roomKey` |
-| Servidor → cliente | `voice.members` | lista dos peers já presentes |
-| Servidor → sala | `voice.peer.joined` | `userId`, nome público |
-| Cliente → servidor | `voice.offer` | `targetUserId`, SDP offer |
-| Cliente → servidor | `voice.answer` | `targetUserId`, SDP answer |
-| Cliente → servidor | `voice.ice` | `targetUserId`, ICE candidate |
-| Cliente → servidor | `voice.leave` | `roomKey` |
-| Servidor → sala | `voice.peer.left` | `userId` |
+| Direção            | Evento              | Conteúdo essencial            |
+| ------------------ | ------------------- | ----------------------------- |
+| Cliente → servidor | `voice.join`        | `channelId`, `roomKey`        |
+| Servidor → cliente | `voice.members`     | lista dos peers já presentes  |
+| Servidor → sala    | `voice.peer.joined` | `userId`, nome público        |
+| Cliente → servidor | `voice.offer`       | `targetUserId`, SDP offer     |
+| Cliente → servidor | `voice.answer`      | `targetUserId`, SDP answer    |
+| Cliente → servidor | `voice.ice`         | `targetUserId`, ICE candidate |
+| Cliente → servidor | `voice.leave`       | `roomKey`                     |
+| Servidor → sala    | `voice.peer.left`   | `userId`                      |
 
 Cada evento usa o envelope realtime existente, com `scope.channelId` e `payload`. O servidor encaminha offers, answers e candidates apenas ao alvo indicado, sem permitir broadcast acidental de SDP ou ICE para outros canais.
 

@@ -1,26 +1,35 @@
-import { readFileSync } from "node:fs";
+import { readNormalizedSource, snippet } from "./testSupport/source";
 import { describe, expect, it, vi } from "vitest";
-import { closeMobileNavState, handleMobileNavEscape, openMobileNavState } from "../client/src/pages/Home";
+import {
+  closeMobileNavState,
+  handleMobileNavEscape,
+  openMobileNavState,
+} from "../client/src/pages/Home";
 
-const source = readFileSync(new URL("../client/src/pages/Home.tsx", import.meta.url), "utf8");
+const source = readNormalizedSource(
+  "../client/src/pages/Home.tsx",
+  import.meta.url
+);
 
 describe("CyberCall community navigation", () => {
   it("includes the reference-inspired community controls", () => {
-    expect(source).toContain("Buscar comunidade");
-    expect(source).toContain("Convidar pilotos");
-    expect(source).toContain("Abrir eventos");
-    expect(source).toContain("Informações");
-    expect(source).toContain("Canais de texto");
-    expect(source).toContain("Canais de voz");
-    expect(source).toContain("LIVE");
+    expect(source).toContain(snippet("Buscar comunidade"));
+    expect(source).toContain(snippet("Convidar pilotos"));
+    expect(source).toContain(snippet("Abrir eventos"));
+    expect(source).toContain(snippet("Informações"));
+    expect(source).toContain(snippet("Canais de texto"));
+    expect(source).toContain(snippet("Canais de voz"));
+    expect(source).toContain(snippet("LIVE"));
   });
 
   it("provides mobile drawer state and accessible toggle", () => {
-    expect(source).toContain("mobileNavOpen");
-    expect(source).toContain("Abrir navegação de comunidades");
-    expect(source).toContain("aria-expanded={mobileNavOpen}");
-    expect(source).toContain("mobileNavRef.current?.focus()");
-    expect(source).toContain("closeMobileNavState(setMobileNavOpen, mobileNavTriggerRef)");
+    expect(source).toContain(snippet("mobileNavOpen"));
+    expect(source).toContain(snippet("Abrir navegação de comunidades"));
+    expect(source).toContain(snippet("aria-expanded={mobileNavOpen}"));
+    expect(source).toContain(snippet("mobileNavRef.current?.focus()"));
+    expect(source).toContain(
+      snippet("closeMobileNavState(setMobileNavOpen, mobileNavTriggerRef)")
+    );
   });
 
   it("closes the mobile drawer on Escape", () => {
@@ -42,7 +51,11 @@ describe("CyberCall community navigation", () => {
     expect(triggerRef.current).toBe(trigger);
     expect(setOpen).toHaveBeenCalledWith(true);
     expect(drawerFocus).toHaveBeenCalledOnce();
-    expect(handleMobileNavEscape("Escape", () => closeMobileNavState(setOpen, triggerRef))).toBe(true);
+    expect(
+      handleMobileNavEscape("Escape", () =>
+        closeMobileNavState(setOpen, triggerRef)
+      )
+    ).toBe(true);
     expect(setOpen).toHaveBeenLastCalledWith(false);
     expect(focus).toHaveBeenCalledOnce();
   });

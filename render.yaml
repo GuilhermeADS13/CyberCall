@@ -4,7 +4,7 @@ services:
     runtime: node
     buildCommand: pnpm install --frozen-lockfile && pnpm build
     startCommand: pnpm start
-    healthCheckPath: /
+    healthCheckPath: /api/health
     autoDeployTrigger: commit
     envVars:
       - key: NODE_ENV
@@ -34,6 +34,18 @@ services:
       - key: VITE_ANALYTICS_ENDPOINT
         sync: false
       - key: VITE_ANALYTICS_WEBSITE_ID
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: VITE_STUN_URLS
+        sync: false
+      - key: VITE_TURN_URLS
+        sync: false
+      - key: VITE_TURN_USERNAME
+        sync: false
+      - key: VITE_TURN_CREDENTIAL
+        sync: false
+      - key: CLOUDMERSIVE_API_KEY
         sync: false
       - key: VITE_APP_TITLE
         value: CyberCall

@@ -6,17 +6,19 @@ export type RoomInviteNotification = {
 
 export type NativeNotificationConstructor = new (
   title: string,
-  options?: NotificationOptions,
-) => {   onclick: ((event: Event) => void) | null; close: () => void };
+  options?: NotificationOptions
+) => { onclick: ((event: Event) => void) | null; close: () => void };
 
-export function nativeNotificationsAvailable(scope: typeof globalThis = globalThis) {
+export function nativeNotificationsAvailable(
+  scope: typeof globalThis = globalThis
+) {
   return "Notification" in scope;
 }
 
 export function emitRoomInviteNotification(
   invite: RoomInviteNotification,
   NotificationCtor: NativeNotificationConstructor,
-  onOpen: () => void,
+  onOpen: () => void
 ) {
   const title = `Convite recebido: ${invite.roomName}`;
   const body = `${invite.senderName || "Um piloto"} convidou você para uma sala.`;

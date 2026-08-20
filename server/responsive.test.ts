@@ -1,22 +1,35 @@
-import { readFileSync } from "node:fs";
+import { readNormalizedSource, snippet } from "./testSupport/source";
 import { describe, expect, it } from "vitest";
 
-const homeSource = readFileSync(new URL("../client/src/pages/Home.tsx", import.meta.url), "utf8");
-const cssSource = readFileSync(new URL("../client/src/index.css", import.meta.url), "utf8");
-const botSource = readFileSync(new URL("../client/src/components/CyberCallHelpBot.tsx", import.meta.url), "utf8");
+const homeSource = readNormalizedSource(
+  "../client/src/pages/Home.tsx",
+  import.meta.url
+);
+const cssSource = readNormalizedSource(
+  "../client/src/index.css",
+  import.meta.url
+);
+const botSource = readNormalizedSource(
+  "../client/src/components/CyberCallHelpBot.tsx",
+  import.meta.url
+);
 
 describe("CyberCall responsive contract", () => {
   it("exposes responsive shell and accessible help controls", () => {
-    expect(homeSource).toContain("cybercall-app");
-    expect(homeSource).toContain("Suspense fallback={null}");
-    expect(botSource).toContain("aria-expanded={open}");
-    expect(botSource).toContain("Não compartilhe senhas");
+    expect(homeSource).toContain(snippet("cybercall-app"));
+    expect(homeSource).toContain(snippet("Suspense fallback={null}"));
+    expect(botSource).toContain(snippet("aria-expanded={open}"));
+    expect(botSource).toContain(snippet("Não compartilhe senhas"));
   });
 
   it("covers mobile, tablet and reduced-motion rules", () => {
-    expect(cssSource).toContain("@media (max-width: 767px)");
-    expect(cssSource).toContain("@media (min-width: 768px) and (max-width: 1199px)");
-    expect(cssSource).toContain("@media (prefers-reduced-motion: reduce)");
-    expect(cssSource).toContain("min-height: 44px");
+    expect(cssSource).toContain(snippet("@media (max-width: 767px)"));
+    expect(cssSource).toContain(
+      snippet("@media (min-width: 768px) and (max-width: 1199px)")
+    );
+    expect(cssSource).toContain(
+      snippet("@media (prefers-reduced-motion: reduce)")
+    );
+    expect(cssSource).toContain(snippet("min-height: 44px"));
   });
 });
