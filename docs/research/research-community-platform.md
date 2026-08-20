@@ -8,17 +8,17 @@ O modelo mais coerente para a Cyperpuck é uma plataforma centralizada com auten
 
 ## Funcionalidades priorizadas
 
-| Camada | Decisão para o MVP | Motivo |
-|---|---|---|
-| Identidade | Login, perfil, avatar, nome e status | Sem identidade não há comunidade persistente. |
-| Comunidades | Espaços/servidores com ícone, descrição e membros | É a unidade principal de pertencimento. |
-| Organização | Categorias e canais de texto com ordenação | Evita que a conversa vire um feed sem contexto. |
-| Conversa | Mensagens, respostas, edição, exclusão e reações | É o ciclo de valor mais frequente. |
-| Presença | Online, ausente e offline | Cria contexto social imediato. |
-| Moderação | Papéis, permissões, silenciar, expulsar e registro de ações | Mantém o espaço seguro e governável. |
-| Onboarding | Regras, seleção de interesses e canais recomendados | Reduz abandono e dá uma primeira ação clara ao membro [1]. |
-| Comunicação ao vivo | Canal de voz/Stage como próxima etapa | O formato Stage separa moderadores, speakers e audiência; é melhor tratá-lo como módulo posterior porque exige WebRTC e política de permissões [2]. |
-| Notificações | Menções, respostas e mensagens diretas | Reengaja membros sem depender de presença constante. |
+| Camada              | Decisão para o MVP                                          | Motivo                                                                                                                                              |
+| ------------------- | ----------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Identidade          | Login, perfil, avatar, nome e status                        | Sem identidade não há comunidade persistente.                                                                                                       |
+| Comunidades         | Espaços/servidores com ícone, descrição e membros           | É a unidade principal de pertencimento.                                                                                                             |
+| Organização         | Categorias e canais de texto com ordenação                  | Evita que a conversa vire um feed sem contexto.                                                                                                     |
+| Conversa            | Mensagens, respostas, edição, exclusão e reações            | É o ciclo de valor mais frequente.                                                                                                                  |
+| Presença            | Online, ausente e offline                                   | Cria contexto social imediato.                                                                                                                      |
+| Moderação           | Papéis, permissões, silenciar, expulsar e registro de ações | Mantém o espaço seguro e governável.                                                                                                                |
+| Onboarding          | Regras, seleção de interesses e canais recomendados         | Reduz abandono e dá uma primeira ação clara ao membro [1].                                                                                          |
+| Comunicação ao vivo | Canal de voz/Stage como próxima etapa                       | O formato Stage separa moderadores, speakers e audiência; é melhor tratá-lo como módulo posterior porque exige WebRTC e política de permissões [2]. |
+| Notificações        | Menções, respostas e mensagens diretas                      | Reengaja membros sem depender de presença constante.                                                                                                |
 
 ## Decisões arquiteturais
 

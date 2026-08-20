@@ -13,7 +13,12 @@ O servidor Express usará `ws` sobre o mesmo HTTP server, no endpoint `/api/real
 ```ts
 type RealtimeEvent = {
   id: string;
-  type: "message.created" | "message.updated" | "message.deleted" | "dm.created" | "presence.updated";
+  type:
+    | "message.created"
+    | "message.updated"
+    | "message.deleted"
+    | "dm.created"
+    | "presence.updated";
   occurredAt: number;
   scope: { communityId?: number; channelId?: number; userIds?: number[] };
   payload: unknown;
