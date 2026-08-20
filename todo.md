@@ -57,3 +57,9 @@
 - [x] Restringir emissão de convite a membros autorizados da comunidade/sala.
 - [x] Cobrir tentativa de convite por usuário sem participação/permissão com `FORBIDDEN`.
 - [x] Revalidar convites, permissões, tipos, testes e build após a correção.
+- [x] Exibir estado e botão explícito para pedir permissão de notificações nativas.
+- [x] Disparar notificação nativa para novos convites quando autorizado.
+- [x] Manter fallback visual e mensagens claras para negado, bloqueado ou indisponível.
+- [x] Validar caminho de segundo plano via helper Notification, acessibilidade com aria-live/role, responsividade, testes e build.
+- [x] Validar explicitamente o fluxo de notificação nativa com a aba em segundo plano via teste do helper e registrar o resultado.
+- [x] Revisar acessibilidade objetiva da central e do estado de permissão, incluindo teclado e leitor de tela, e revalidar testes/build.
