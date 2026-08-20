@@ -313,5 +313,5 @@
 
 - [x] Auditar alterações locais e separar `.github/workflows/ci.yml` do commit publicável.
 - [x] Executar validações e preparar commit com o chat da chamada e o indicador de digitação.
-- [ ] Enviar o commit para `GuilhermeADS13/CyberCall` e verificar os arquivos remotos.
-- [ ] Registrar o commit remoto e a pendência futura do workflow CI.
+- [x] Enviar o commit para `GuilhermeADS13/CyberCall` e verificar os arquivos remotos.
+- [x] Registrar o commit remoto `bfc58b9b6d58ee730e0ff7d4dbbd479bbe756a7a`; workflow CI permanece ausente por decisão anterior.
