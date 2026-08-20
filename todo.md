@@ -150,3 +150,13 @@
 - [x] Testar a sequência completa no mesmo caso: abertura pelo gatilho, foco inicial, Escape e restauração do foco.
 
 - [x] Fazer `openMobileNavState` focar o drawer no momento da abertura e testar, no mesmo fluxo, abertura pelo gatilho, foco inicial, Escape e retorno ao gatilho.
+
+- [x] Adicionar seletor de avatar com pré-visualização, validação de imagem e remoção segura.
+- [x] Adicionar seletor de status de presença com estados online, ausente, ocupado e invisível.
+- [x] Mostrar claramente que as alterações são locais/demonstrativas até existir persistência de perfil; presença é preservada no localStorage do navegador.
+- [x] Validar acessibilidade, responsividade, testes e build; checkpoint será salvo após a revisão final.
+
+- [x] Atualizar o resumo Principal do perfil para refletir o status selecionado, em vez de exibir Online fixo.
+- [x] Cobrir a consistência do status selecionado no painel com teste de contrato e reexecutar check/test/build.
+
+- [x] Extrair helper do rótulo de presença e testar que cada status selecionado aparece no resumo Principal.
