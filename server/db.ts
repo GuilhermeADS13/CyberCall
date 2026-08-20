@@ -1,6 +1,6 @@
 import { and, asc, desc, eq, or } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { attachments, communities, communityMembers, channels, directMessages, InsertUser, messageReactions, messages, notifications, users } from "../drizzle/schema";
+import { attachments, communities, communityMembers, channels, directMessages, InsertUser, messageReactions, messages, notifications, roomInvites, users } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -193,6 +193,40 @@ export async function listNotifications(userId: number) {
   const db = await getDb();
   if (!db) return [];
   return db.select().from(notifications).where(eq(notifications.userId, userId)).orderBy(desc(notifications.createdAt)).limit(50);
+}
+
+export async function createRoomInvite(senderId: number, recipientId: number, communityId: number, roomKey: string, roomName: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+  const result = await db.insert(roomInvites).values({ communityId, senderId, recipientId, roomKey, roomName, expiresAt }).$returningId();
+  const inviteId = result[0]?.id;
+  if (!inviteId) throw new Error("Room invite creation failed");
+  await db.insert(notifications).values({ userId: recipientId, kind: "room_invite", title: "Convite de sala recebido", body: `Você foi convidado para entrar na sala ${roomName}.` });
+  return { id: inviteId, roomKey, roomName, expiresAt };
+}
+
+export async function listRoomInvites(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  const rows = await db.select({ id: roomInvites.id, roomKey: roomInvites.roomKey, roomName: roomInvites.roomName, status: roomInvites.status, expiresAt: roomInvites.expiresAt, createdAt: roomInvites.createdAt, senderName: users.name }).from(roomInvites).innerJoin(users, eq(users.id, roomInvites.senderId)).where(and(eq(roomInvites.recipientId, userId), eq(roomInvites.status, "pending"))).orderBy(desc(roomInvites.createdAt)).limit(20);
+  const now = Date.now();
+  return rows.filter((row) => row.expiresAt.getTime() > now);
+}
+
+export async function respondRoomInvite(inviteId: number, userId: number, status: "accepted" | "declined") {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  const existing = await db.select({ id: roomInvites.id, senderId: roomInvites.senderId, roomKey: roomInvites.roomKey, expiresAt: roomInvites.expiresAt, status: roomInvites.status }).from(roomInvites).where(and(eq(roomInvites.id, inviteId), eq(roomInvites.recipientId, userId))).limit(1);
+  if (!existing[0]) throw new Error("Room invite not found");
+  if (existing[0].status !== "pending") throw new Error("Room invite already answered");
+  if (existing[0].expiresAt.getTime() <= Date.now()) {
+    await db.update(roomInvites).set({ status: "expired", respondedAt: new Date() }).where(eq(roomInvites.id, inviteId));
+    throw new Error("Room invite expired");
+  }
+  await db.update(roomInvites).set({ status, respondedAt: new Date() }).where(eq(roomInvites.id, inviteId));
+  await db.insert(notifications).values({ userId: existing[0].senderId, kind: "room_invite_response", title: status === "accepted" ? "Convite aceito" : "Convite recusado", body: status === "accepted" ? "Seu convite de sala foi aceito." : "Seu convite de sala foi recusado." });
+  return { success: true, status, roomKey: existing[0].roomKey } as const;
 }
 
 export async function markNotificationRead(notificationId: number, userId: number) {

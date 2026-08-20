@@ -49,3 +49,11 @@
 - [x] Validar acessibilidade, responsividade, testes e build.
 - [x] Implementar menu contextual de moderação por participante.
 - [x] Exibir controles de moderação somente quando o usuário tiver papel de moderador/administrador, documentando o fallback visual da etapa sem WebRTC.
+- [x] Definir estados persistidos de convite: pendente, aceito, recusado e expirado.
+- [x] Emitir convites de sala para usuários e gerar notificação em tempo quase real via polling.
+- [x] Criar alerta cyberpunk com contador e ações de aceitar/recusar.
+- [x] Atualizar o estado da sala após aceitar e cobrir acessibilidade e responsividade.
+- [x] Validar notificações, permissões, testes e build.
+- [x] Restringir emissão de convite a membros autorizados da comunidade/sala.
+- [x] Cobrir tentativa de convite por usuário sem participação/permissão com `FORBIDDEN`.
+- [x] Revalidar convites, permissões, tipos, testes e build após a correção.

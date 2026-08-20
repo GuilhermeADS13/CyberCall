@@ -1,0 +1,1 @@
+ALTER TABLE `roomInvites` ADD `communityId` int NOT NULL;

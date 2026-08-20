@@ -63,4 +63,14 @@ describe("community router", () => {
     await expect(authenticatedCaller.message.update({ messageId: 1, body: "novo texto" })).rejects.toMatchObject({ code: "FORBIDDEN" });
     await expect(authenticatedCaller.message.delete({ messageId: 1 })).rejects.toMatchObject({ code: "FORBIDDEN" });
   });
+
+  it("protects room invites and validates their payload", async () => {
+    const anonymousCaller = appRouter.createCaller(createContext());
+    await expect(anonymousCaller.roomInvite.list()).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+
+    const authenticatedCaller = appRouter.createCaller(createContext(authenticatedUser));
+    await expect(authenticatedCaller.roomInvite.create({ recipientId: 0, communityId: 1, roomKey: "lobby", roomName: "Lobby" })).rejects.toMatchObject({ code: "BAD_REQUEST" });
+    await expect(authenticatedCaller.roomInvite.create({ recipientId: 2, communityId: 999999, roomKey: "lobby", roomName: "Lobby" })).rejects.toMatchObject({ code: "FORBIDDEN" });
+    await expect(authenticatedCaller.roomInvite.respond({ inviteId: 0, status: "accepted" })).rejects.toMatchObject({ code: "BAD_REQUEST" });
+  });
 });

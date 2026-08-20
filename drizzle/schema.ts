@@ -88,6 +88,19 @@ export const notifications = mysqlTable("notifications", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
+export const roomInvites = mysqlTable("roomInvites", {
+  id: int("id").autoincrement().primaryKey(),
+  communityId: int("communityId").notNull(),
+  roomKey: varchar("roomKey", { length: 160 }).notNull(),
+  roomName: varchar("roomName", { length: 120 }).notNull(),
+  senderId: int("senderId").notNull(),
+  recipientId: int("recipientId").notNull(),
+  status: mysqlEnum("status", ["pending", "accepted", "declined", "expired"]).default("pending").notNull(),
+  expiresAt: timestamp("expiresAt").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  respondedAt: timestamp("respondedAt"),
+});
+
 export const messageReactions = mysqlTable("messageReactions", {
   id: int("id").autoincrement().primaryKey(),
   messageId: int("messageId").notNull(),

@@ -4,7 +4,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { createCommunity, createDirectMessage, createMessage, deleteMessage, getCommunityOverview, getOwnedAttachment, isCommunityMember, listCommunities, listDirectMessages, listMessages, listNotifications, markNotificationRead, toggleMessageReaction, updateMessage } from "./db";
+import { createCommunity, createDirectMessage, createMessage, createRoomInvite, deleteMessage, getCommunityOverview, getOwnedAttachment, isCommunityMember, listCommunities, listDirectMessages, listMessages, listNotifications, listRoomInvites, markNotificationRead, respondRoomInvite, toggleMessageReaction, updateMessage } from "./db";
 
 const attachmentInput = z.object({ id: z.number().int().positive(), key: z.string().min(1).max(512), url: z.string().startsWith("/manus-storage/").max(768), name: z.string().min(1).max(255), mimeType: z.string().min(1).max(120), size: z.number().int().positive().max(10 * 1024 * 1024) }).optional();
 
@@ -19,6 +19,19 @@ export const appRouter = router({
       return {
         success: true,
       } as const;
+    }),
+  }),
+
+  roomInvite: router({
+    list: protectedProcedure.query(({ ctx }) => listRoomInvites(ctx.user.id)),
+    create: protectedProcedure.input(z.object({ recipientId: z.number().int().positive(), communityId: z.number().int().positive(), roomKey: z.string().trim().min(1).max(160), roomName: z.string().trim().min(1).max(120) })).mutation(async ({ ctx, input }) => { if (ctx.user.role !== "admin" && !(await isCommunityMember(input.communityId, ctx.user.id))) throw new TRPCError({ code: "FORBIDDEN", message: "Você precisa ser membro da comunidade para emitir convites." }); return createRoomInvite(ctx.user.id, input.recipientId, input.communityId, input.roomKey, input.roomName); }),
+    respond: protectedProcedure.input(z.object({ inviteId: z.number().int().positive(), status: z.enum(["accepted", "declined"]) })).mutation(async ({ ctx, input }) => {
+      try { return await respondRoomInvite(input.inviteId, ctx.user.id, input.status); }
+      catch (error) {
+        if (error instanceof Error && error.message.includes("not found")) throw new TRPCError({ code: "NOT_FOUND", message: "Convite não encontrado." });
+        if (error instanceof Error && (error.message.includes("already") || error.message.includes("expired"))) throw new TRPCError({ code: "BAD_REQUEST", message: "Este convite não está mais disponível." });
+        throw error;
+      }
     }),
   }),
 
