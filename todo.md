@@ -240,3 +240,12 @@
 - [x] Adicionar slider, valor percentual, descrição acessível e ação de reset nas configurações da sala.
 - [x] Cobrir normalização, persistência, limites e reset com testes Vitest.
 - [x] Validar check, testes, build e revisão responsiva; revisão registrada em `microphone-sensitivity-visual-review.md`.
+
+
+## Destaque de quem está falando
+
+- [x] Mapear streams locais/remotos, participantes e estado de mute para definir o contrato de fala ativa.
+- [x] Implementar detector de atividade de fala com Web Audio API, limiar e cleanup por stream.
+- [x] Integrar destaque neon, etiqueta acessível e estado de fala nos tiles locais/remotos.
+- [x] Cobrir limiar, silêncio, mute, fallback e cleanup com testes Vitest.
+- [x] Validar check, testes, build e revisão responsiva; revisão registrada em `speaking-indicator-visual-review.md`.
