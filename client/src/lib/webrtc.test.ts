@@ -25,6 +25,7 @@ describe("WebRTC mesh signaling", () => {
   it("returns explicit media constraints", () => {
     expect(getMediaConstraints(true, false)).toEqual({ audio: true, video: false });
     expect(getMediaConstraints(false, true)).toEqual({ audio: false, video: true });
+    expect(getMediaConstraints(true, true, { audioDeviceId: "mic-1", videoDeviceId: "cam-2" })).toEqual({ audio: { deviceId: { exact: "mic-1" } }, video: { deviceId: { exact: "cam-2" } } });
   });
 
   it("creates offers for existing members and handles answer/ICE events", async () => {

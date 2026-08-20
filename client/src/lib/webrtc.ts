@@ -17,8 +17,11 @@ export const defaultRtcConfiguration: RTCConfiguration = {
   iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
 };
 
-export function getMediaConstraints(audio: boolean, video: boolean): MediaStreamConstraints {
-  return { audio, video };
+export function getMediaConstraints(audio: boolean, video: boolean, devices?: { audioDeviceId?: string; videoDeviceId?: string }): MediaStreamConstraints {
+  return {
+    audio: audio ? (devices?.audioDeviceId ? { deviceId: { exact: devices.audioDeviceId } } : true) : false,
+    video: video ? (devices?.videoDeviceId ? { deviceId: { exact: devices.videoDeviceId } } : true) : false,
+  };
 }
 
 export function createWebRtcMesh(options: WebRtcMeshOptions) {
@@ -114,6 +117,15 @@ export function createWebRtcMesh(options: WebRtcMeshOptions) {
     },
     setTrackEnabled(kind: "audio" | "video", enabled: boolean) {
       localStream?.getTracks().filter((track) => track.kind === kind).forEach((track) => { track.enabled = enabled; });
+    },
+    async replaceTrack(kind: "audio" | "video", track: MediaStreamTrack | null) {
+      localStream?.getTracks().filter((currentTrack) => currentTrack.kind === kind && currentTrack !== track).forEach((currentTrack) => { currentTrack.enabled = false; });
+      await Promise.all(Array.from(peers.values()).map(async (peer) => {
+        const sender = peer.getSenders().find((candidate) => candidate.track?.kind === kind);
+        if (sender) await sender.replaceTrack(track);
+        else if (track && localStream) peer.addTrack(track, localStream);
+      }));
+      await Promise.all(Array.from(peers.keys()).map((userId) => createOffer(userId)));
     },
     getPeerIds() {
       return Array.from(peers.keys());

@@ -212,3 +212,13 @@
 - [x] Conectar microfone, câmera, entrada/saída e estado visual de participantes à mídia real, mantendo fallback acessível; compartilhamento de tela permanece separado.
 - [x] Cobrir signaling, autorização, isolamento, reconexão, permissões de mídia e cleanup com testes Vitest.
 - [x] Validar check, testes, build e revisão responsiva; revisão registrada em `webrtc-visual-review.md`.
+
+
+## Mídia avançada: tela e dispositivos
+
+- [x] Mapear suporte do navegador para enumerateDevices, setSinkId e getDisplayMedia; definir estados e fallback acessível.
+- [x] Adicionar ao mesh WebRTC troca de tracks de câmera, microfone e tela com renegociação e encerramento automático.
+- [x] Implementar seleção persistente de microfone, câmera e saída de áudio na sala.
+- [x] Integrar preview local de tela, botão de compartilhamento e avisos de permissão/indisponibilidade.
+- [x] Cobrir troca de dispositivos, compartilhamento de tela, cleanup e permissões com testes Vitest.
+- [x] Validar check, testes, build e revisão responsiva; revisão registrada em `media-devices-visual-review.md`.
