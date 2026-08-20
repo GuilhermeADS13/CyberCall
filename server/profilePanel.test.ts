@@ -7,6 +7,8 @@ describe("CyberCall profile panel contract", () => {
       title: "Perfil da sessão",
       session: "Protegida",
       presence: "Online",
+      mainTab: "Principal",
+      settingsTab: "Configurações",
     });
   });
 });

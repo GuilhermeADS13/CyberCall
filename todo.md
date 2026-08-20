@@ -102,3 +102,26 @@
 - [x] Cobrir com teste a navegação por setas/Home/End e o foco do estado de carregamento da autenticação.
 
 - [x] Cobrir o contrato de foco preservado e anúncio acessível durante `isSubmitting` no CTA de autenticação, depois reexecutar check/test/build.
+
+- [x] Reestruturar a sala de vídeo com palco principal, participantes, status glitch e controles de chamada.
+- [x] Adicionar convites, compartilhamento, mute, câmera, tela, encerramento e moderação visualmente coerentes.
+- [x] Expandir perfil com edição local de nome, preferências, conexões, segurança e configurações.
+- [x] Integrar abertura/fechamento acessível, foco, teclado e estados responsivos.
+- [x] Adicionar testes de contrato para sala/perfil e validar check, testes, build e checkpoint.
+
+- [x] Completar foco inicial e retorno de foco da sala de vídeo, com Escape e fechamento acessível.
+- [x] Adicionar teste de contrato para abertura, Escape e gestão de foco da sala.
+- [x] Identificar claramente as preferências do perfil como locais/demonstrativas até existir endpoint persistente.
+
+- [x] Criar logo CyberCall original com composição amarela, preta, vermelha e ciano inspirada na referência, sem copiar o wordmark.
+- [ ] Criar vídeo de fundo original em formato de pôster futurista vertical/cinemático com glitch e iluminação dramática — pendente até o reset do limite diário de vídeo.
+- [x] Substituir os assets atuais na autenticação, home e sala de vídeo, mantendo poster/fallback acessível; o vídeo anterior permanece como camada animada temporária, com novo poster/logo aplicados também no modal.
+- [x] Validar contraste, responsividade mobile/desktop, acessibilidade, testes e build; checkpoint desta etapa será salvo com o vídeo novo explicitamente pendente.
+
+- [x] Extrair helpers testáveis de abertura/fechamento e foco da sala de vídeo, cobrindo o comportamento real de Escape e retorno ao gatilho.
+
+- [x] Extrair helper integrado para abrir/fechar a sala, registrar gatilho e devolver foco após Escape.
+- [x] Testar a sequência completa de abertura, Escape, fechamento e restauração de foco.
+
+- [x] Encapsular registro do gatilho e disparo de Escape no helper integrado da sala.
+- [x] Testar a sequência integrada completa com o mesmo gatilho real/fake.

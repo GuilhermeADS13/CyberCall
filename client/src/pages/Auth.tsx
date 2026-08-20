@@ -35,8 +35,8 @@ export const authCopy = {
   signup: { eyebrow: "Primeiro acesso", title: "Abra seu próprio circuito.", cta: "Criar identidade segura" },
 } as const;
 
-const heroImage = "/manus-storage/cyperpuck-night-circuit-hero_05e23f2c.jpg";
-const cyberCallLogo = "/manus-storage/cybercall-logo-mark_a4090790.png";
+const heroImage = "/manus-storage/cybercall-poster-background_febc1986.jpg";
+const cyberCallLogo = "/manus-storage/cybercall-poster-logo_d5171e8f.png";
 const cyberCallVideo = "/manus-storage/cybercall-background.mp4";
 
 const benefits = [
