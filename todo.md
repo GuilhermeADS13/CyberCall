@@ -373,4 +373,4 @@
 - [x] Manter destaque de termos, estado vazio e seleção de resultados após filtrar.
 - [x] Adicionar testes para cada filtro e contagens correspondentes.
 - [x] Validar TypeScript, suíte, build e responsividade.
-- [ ] Publicar no GitHub e salvar checkpoint.
+- [x] Publicar no GitHub no commit `f08efd0`; checkpoint final pendente.
