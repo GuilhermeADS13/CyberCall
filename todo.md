@@ -249,3 +249,13 @@
 - [x] Integrar destaque neon, etiqueta acessível e estado de fala nos tiles locais/remotos.
 - [x] Cobrir limiar, silêncio, mute, fallback e cleanup com testes Vitest.
 - [x] Validar check, testes, build e revisão responsiva; revisão registrada em `speaking-indicator-visual-review.md`.
+
+
+## Qualidade de conexão por participante
+
+- [x] Mapear RTCPeerConnection, estados atuais e métricas disponíveis para definir o contrato de qualidade.
+- [x] Implementar coleta periódica de RTT, perda de pacotes e estado ICE/connection por peer.
+- [x] Classificar qualidade em boa, instável, baixa e indisponível com fallback seguro.
+- [x] Integrar barras/ícone, cor, tooltip e aria-label de qualidade em cada tile e na telemetria.
+- [x] Cobrir classificação, métricas ausentes, cleanup e transições com testes Vitest.
+- [x] Validar check, testes, build e revisão responsiva; revisão registrada em `network-quality-visual-review.md`.

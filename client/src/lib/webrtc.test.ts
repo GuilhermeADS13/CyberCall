@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { createWebRtcMesh, getMediaConstraints } from "./webrtc";
+import { classifyNetworkQuality, createWebRtcMesh, getMediaConstraints } from "./webrtc";
 
 class FakePeerConnection {
   static instances: FakePeerConnection[] = [];
@@ -22,6 +22,13 @@ class FakePeerConnection {
 }
 
 describe("WebRTC mesh signaling", () => {
+  it("classifies quality from latency, packet loss and connection state", () => {
+    expect(classifyNetworkQuality({ rttMs: 80, lossRate: 0.01, connected: true })).toBe("good");
+    expect(classifyNetworkQuality({ rttMs: 220, lossRate: 0.04, connected: true })).toBe("unstable");
+    expect(classifyNetworkQuality({ rttMs: 420, lossRate: 0.12, connected: true })).toBe("poor");
+    expect(classifyNetworkQuality({ connected: false })).toBe("unavailable");
+    expect(classifyNetworkQuality({ connected: true })).toBe("unstable");
+  });
   it("returns explicit media constraints", () => {
     expect(getMediaConstraints(true, false)).toEqual({ audio: true, video: false });
     expect(getMediaConstraints(false, true)).toEqual({ audio: false, video: true });

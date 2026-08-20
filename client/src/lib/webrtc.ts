@@ -3,6 +3,22 @@ export type VoiceSignalEvent = {
   payload: any;
 };
 
+export type NetworkQualityLevel = "good" | "unstable" | "poor" | "unavailable";
+
+export type NetworkQuality = {
+  level: NetworkQualityLevel;
+  rttMs?: number;
+  lossRate?: number;
+};
+
+export function classifyNetworkQuality(input: { rttMs?: number; lossRate?: number; connected?: boolean }): NetworkQualityLevel {
+  if (input.connected === false) return "unavailable";
+  if (input.rttMs === undefined && input.lossRate === undefined) return input.connected ? "unstable" : "unavailable";
+  if ((input.rttMs ?? 0) <= 150 && (input.lossRate ?? 0) <= 0.02) return "good";
+  if ((input.rttMs ?? 0) <= 300 && (input.lossRate ?? 0) <= 0.08) return "unstable";
+  return "poor";
+}
+
 export type WebRtcMeshOptions = {
   channelId: number;
   roomKey: string;
@@ -10,6 +26,7 @@ export type WebRtcMeshOptions = {
   sendSignal: (command: any) => void;
   onRemoteStream?: (userId: number, stream: MediaStream) => void;
   onPeerState?: (userId: number, state: "connecting" | "connected" | "disconnected") => void;
+  onPeerQuality?: (userId: number, quality: NetworkQuality) => void;
   rtcConfiguration?: RTCConfiguration;
 };
 
@@ -26,6 +43,7 @@ export function getMediaConstraints(audio: boolean, video: boolean, devices?: { 
 
 export function createWebRtcMesh(options: WebRtcMeshOptions) {
   const peers = new Map<number, RTCPeerConnection>();
+  const statsTimers = new Map<number, ReturnType<typeof setInterval>>();
   let localStream: MediaStream | null = null;
   let closed = false;
 
@@ -39,12 +57,47 @@ export function createWebRtcMesh(options: WebRtcMeshOptions) {
     });
   };
 
+  const collectPeerQuality = async (userId: number, peer: RTCPeerConnection) => {
+    if (closed || !peers.has(userId)) return;
+    try {
+      const stats = await peer.getStats();
+      let rttMs: number | undefined;
+      let packetsLost = 0;
+      let packetsReceived = 0;
+      stats.forEach((report: any) => {
+        if (report.type === "candidate-pair" && (report.state === "succeeded" || report.nominated) && typeof report.currentRoundTripTime === "number") rttMs = report.currentRoundTripTime * 1000;
+        if (report.type === "inbound-rtp" && report.kind !== "audio" && report.mediaType !== "audio") {
+          if (typeof report.packetsLost === "number") packetsLost += Math.max(0, report.packetsLost);
+          if (typeof report.packetsReceived === "number") packetsReceived += Math.max(0, report.packetsReceived);
+        }
+      });
+      const totalPackets = packetsLost + packetsReceived;
+      const lossRate = totalPackets > 0 ? packetsLost / totalPackets : undefined;
+      options.onPeerQuality?.(userId, { level: classifyNetworkQuality({ rttMs, lossRate, connected: peer.connectionState === "connected" }), rttMs, lossRate });
+    } catch {
+      options.onPeerQuality?.(userId, { level: "unavailable" });
+    }
+  };
+
+  const startPeerStats = (userId: number, peer: RTCPeerConnection) => {
+    if (statsTimers.has(userId)) return;
+    void collectPeerQuality(userId, peer);
+    statsTimers.set(userId, setInterval(() => void collectPeerQuality(userId, peer), 2500));
+  };
+
+  const stopPeerStats = (userId: number) => {
+    const timer = statsTimers.get(userId);
+    if (timer) clearInterval(timer);
+    statsTimers.delete(userId);
+  };
+
   const ensurePeer = (userId: number) => {
     const existing = peers.get(userId);
     if (existing) return existing;
     const peer = new RTCPeerConnection(options.rtcConfiguration || defaultRtcConfiguration);
     peers.set(userId, peer);
     attachLocalTracks(peer);
+    startPeerStats(userId, peer);
     options.onPeerState?.(userId, "connecting");
     peer.onicecandidate = (event) => {
       if (!event.candidate) return;
@@ -56,7 +109,10 @@ export function createWebRtcMesh(options: WebRtcMeshOptions) {
     };
     peer.onconnectionstatechange = () => {
       if (peer.connectionState === "connected") options.onPeerState?.(userId, "connected");
-      if (["failed", "disconnected", "closed"].includes(peer.connectionState)) options.onPeerState?.(userId, "disconnected");
+      if (["failed", "disconnected", "closed"].includes(peer.connectionState)) {
+        options.onPeerState?.(userId, "disconnected");
+        options.onPeerQuality?.(userId, { level: "unavailable" });
+      }
     };
     return peer;
   };
@@ -79,6 +135,8 @@ export function createWebRtcMesh(options: WebRtcMeshOptions) {
       const userId = Number(event.payload?.userId);
       const peer = peers.get(userId);
       peer?.close();
+      stopPeerStats(userId);
+      options.onPeerQuality?.(userId, { level: "unavailable" });
       peers.delete(userId);
       return;
     }
@@ -111,6 +169,8 @@ export function createWebRtcMesh(options: WebRtcMeshOptions) {
     close() {
       closed = true;
       peers.forEach((peer) => peer.close());
+      statsTimers.forEach((timer) => clearInterval(timer));
+      statsTimers.clear();
       peers.clear();
       localStream?.getTracks().forEach((track) => track.stop());
       localStream = null;
