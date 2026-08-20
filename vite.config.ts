@@ -167,6 +167,16 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    chunkSizeWarningLimit: 700,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "react-vendor": ["react", "react-dom"],
+          "data-vendor": ["@tanstack/react-query", "@trpc/client", "@trpc/react-query", "superjson"],
+          "ui-vendor": ["lucide-react", "sonner", "wouter"],
+        },
+      },
+    },
   },
   server: {
     host: true,
