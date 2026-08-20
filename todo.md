@@ -354,3 +354,13 @@
 - [x] Adicionar atalhos `/` e `Ctrl/Cmd+K`, foco inicial e navegação por teclado.
 - [x] Validar acessibilidade, desktop/mobile, testes, build e integração com navegação.
 - [x] Publicar no GitHub no commit `22f8794`; checkpoint final pendente.
+
+
+## Destaque de termos pesquisados
+
+- [x] Mapear a renderização atual dos resultados da busca global.
+- [x] Implementar helper seguro para destacar ocorrências sem interpretar regex do usuário.
+- [x] Aplicar destaque visual em títulos, subtítulos e corpos de mensagens.
+- [x] Adicionar testes de normalização, múltiplas ocorrências e termos especiais.
+- [x] Validar TypeScript, testes, build e revisão responsiva.
+- [ ] Publicar no GitHub e salvar checkpoint.

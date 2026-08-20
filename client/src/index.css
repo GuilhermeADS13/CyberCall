@@ -324,3 +324,6 @@ button:not(:disabled), a[href], input:not(:disabled) { cursor: pointer; }
 .global-search-result:active { transform: scale(.99); }
 @keyframes global-search-enter { from { opacity: 0; transform: translateY(-8px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
 @media (prefers-reduced-motion: reduce) { .global-search-panel { animation: none; } }
+
+
+.search-term-highlight { background: #ffb547; color: #080b10; box-shadow: 0 0 0 1px rgba(255,181,71,.45), 0 0 14px rgba(255,181,71,.24); padding: 0 .16em; }

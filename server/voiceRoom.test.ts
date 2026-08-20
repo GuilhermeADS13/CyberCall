@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { appendVoiceChatMessage, closeVoiceRoomState, cyberCallVoiceRoomCopy, focusVoiceRoom, formatVoiceTypingLabel, handleVoiceRoomKey, normalizeVoiceChatBody, searchGlobalContent, openVoiceRoomState, removeVoiceChatMessage, updateVoiceChatMessage, pruneVoiceTypingParticipants, restoreVoiceRoomFocus } from "../client/src/pages/Home";
+import { appendVoiceChatMessage, closeVoiceRoomState, cyberCallVoiceRoomCopy, focusVoiceRoom, formatVoiceTypingLabel, handleVoiceRoomKey, highlightSearchMatches, normalizeVoiceChatBody, searchGlobalContent, openVoiceRoomState, removeVoiceChatMessage, updateVoiceChatMessage, pruneVoiceTypingParticipants, restoreVoiceRoomFocus } from "../client/src/pages/Home";
 
 const homeSource = readFileSync(new URL("../client/src/pages/Home.tsx", import.meta.url), "utf8");
 const styleSource = readFileSync(new URL("../client/src/index.css", import.meta.url), "utf8");
@@ -61,6 +61,12 @@ describe("CyberCall voice room contract", () => {
     expect(appendVoiceChatMessage([first], second)).toEqual([first, second]);
     expect(updateVoiceChatMessage([first], "evt-1", " editado ", 3)[0]).toMatchObject({ body: "editado", editedAt: 3 });
     expect(removeVoiceChatMessage([first, second], "evt-1")).toEqual([second]);
+  });
+
+  it("highlights repeated terms and treats regex characters literally", () => {
+    expect(highlightSearchMatches("Cyber cyber C++", "cyber").filter((part) => part.matched).map((part) => part.text)).toEqual(["Cyber", "cyber"]);
+    expect(highlightSearchMatches("a+b a+b", "a+b").filter((part) => part.matched)).toHaveLength(2);
+    expect(highlightSearchMatches("sem sinal", "")).toEqual([{ text: "sem sinal", matched: false }]);
   });
 
   it("searches messages and users with normalized query", () => {
