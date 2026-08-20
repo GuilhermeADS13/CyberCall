@@ -37,4 +37,9 @@ describe("community router", () => {
     const caller = appRouter.createCaller(createContext(authenticatedUser));
     await expect(caller.directMessage.list({ otherUserId: 0 })).rejects.toMatchObject({ code: "BAD_REQUEST" });
   });
+
+  it("reads notifications for an authenticated user", async () => {
+    const result = await appRouter.createCaller(createContext(authenticatedUser)).notification.list();
+    expect(Array.isArray(result)).toBe(true);
+  });
 });

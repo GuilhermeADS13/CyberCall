@@ -62,6 +62,16 @@ export const directMessages = mysqlTable("directMessages", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
+export const notifications = mysqlTable("notifications", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  kind: varchar("kind", { length: 32 }).notNull(),
+  title: varchar("title", { length: 160 }).notNull(),
+  body: text("body").notNull(),
+  readAt: timestamp("readAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
 export const messageReactions = mysqlTable("messageReactions", {
   id: int("id").autoincrement().primaryKey(),
   messageId: int("messageId").notNull(),

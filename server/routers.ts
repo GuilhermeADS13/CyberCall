@@ -4,7 +4,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { createCommunity, createDirectMessage, createMessage, getCommunityOverview, isCommunityMember, listCommunities, listDirectMessages, listMessages, toggleMessageReaction } from "./db";
+import { createCommunity, createDirectMessage, createMessage, getCommunityOverview, isCommunityMember, listCommunities, listDirectMessages, listMessages, listNotifications, markNotificationRead, toggleMessageReaction } from "./db";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -18,6 +18,11 @@ export const appRouter = router({
         success: true,
       } as const;
     }),
+  }),
+
+  notification: router({
+    list: protectedProcedure.query(({ ctx }) => listNotifications(ctx.user.id)),
+    markRead: protectedProcedure.input(z.object({ notificationId: z.number().int().positive() })).mutation(({ ctx, input }) => markNotificationRead(input.notificationId, ctx.user.id)),
   }),
 
   message: router({

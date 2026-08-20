@@ -1,6 +1,6 @@
 import { and, asc, desc, eq, or } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { communities, communityMembers, channels, directMessages, InsertUser, messageReactions, messages, users } from "../drizzle/schema";
+import { communities, communityMembers, channels, directMessages, InsertUser, messageReactions, messages, notifications, users } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -150,7 +150,21 @@ export async function createDirectMessage(senderId: number, recipientId: number,
   const result = await db.insert(directMessages).values({ senderId, recipientId, body }).$returningId();
   const messageId = result[0]?.id;
   if (!messageId) throw new Error("Direct message creation failed");
+  await db.insert(notifications).values({ userId: recipientId, kind: "direct_message", title: "Novo sinal privado", body: "Você recebeu uma nova mensagem direta na Cyperpuck." });
   return (await db.select({ id: directMessages.id, senderId: directMessages.senderId, recipientId: directMessages.recipientId, body: directMessages.body, createdAt: directMessages.createdAt, readAt: directMessages.readAt, senderName: users.name }).from(directMessages).innerJoin(users, eq(users.id, directMessages.senderId)).where(eq(directMessages.id, messageId)).limit(1))[0];
+}
+
+export async function listNotifications(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(notifications).where(eq(notifications.userId, userId)).orderBy(desc(notifications.createdAt)).limit(50);
+}
+
+export async function markNotificationRead(notificationId: number, userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  await db.update(notifications).set({ readAt: new Date() }).where(and(eq(notifications.id, notificationId), eq(notifications.userId, userId)));
+  return { success: true } as const;
 }
 
 export async function toggleMessageReaction(messageId: number, userId: number, emoji: string) {

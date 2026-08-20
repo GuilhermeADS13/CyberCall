@@ -22,6 +22,13 @@
       "when": 1787191242409,
       "tag": "0002_rainy_psylocke",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1787191511561,
+      "tag": "0003_wealthy_lady_mastermind",
+      "breakpoints": true
     }
   ]
 }
