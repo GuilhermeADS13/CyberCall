@@ -363,4 +363,4 @@
 - [x] Aplicar destaque visual em títulos, subtítulos e corpos de mensagens.
 - [x] Adicionar testes de normalização, múltiplas ocorrências e termos especiais.
 - [x] Validar TypeScript, testes, build e revisão responsiva.
-- [ ] Publicar no GitHub e salvar checkpoint.
+- [x] Publicar no GitHub no commit `08ef607`; checkpoint final pendente.
