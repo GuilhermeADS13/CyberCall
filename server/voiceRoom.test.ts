@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { appendVoiceChatMessage, closeVoiceRoomState, cyberCallVoiceRoomCopy, focusVoiceRoom, formatVoiceTypingLabel, handleVoiceRoomKey, filterGlobalSearchResults, highlightSearchMatches, normalizeVoiceChatBody, searchGlobalContent, openVoiceRoomState, removeVoiceChatMessage, updateVoiceChatMessage, pruneVoiceTypingParticipants, restoreVoiceRoomFocus } from "../client/src/pages/Home";
+import { appendVoiceChatMessage, closeVoiceRoomState, cyberCallVoiceRoomCopy, focusVoiceRoom, formatVoiceTypingLabel, handleVoiceRoomKey, addRecentSearch, filterGlobalSearchResults, highlightSearchMatches, normalizeRecentSearches, normalizeVoiceChatBody, searchGlobalContent, openVoiceRoomState, removeVoiceChatMessage, updateVoiceChatMessage, pruneVoiceTypingParticipants, restoreVoiceRoomFocus } from "../client/src/pages/Home";
 
 const homeSource = readFileSync(new URL("../client/src/pages/Home.tsx", import.meta.url), "utf8");
 const styleSource = readFileSync(new URL("../client/src/index.css", import.meta.url), "utf8");
@@ -67,6 +67,12 @@ describe("CyberCall voice room contract", () => {
     expect(highlightSearchMatches("Cyber cyber C++", "cyber").filter((part) => part.matched).map((part) => part.text)).toEqual(["Cyber", "cyber"]);
     expect(highlightSearchMatches("a+b a+b", "a+b").filter((part) => part.matched)).toHaveLength(2);
     expect(highlightSearchMatches("sem sinal", "")).toEqual([{ text: "sem sinal", matched: false }]);
+  });
+
+  it("manages recent searches with deduplication and a safe limit", () => {
+    expect(addRecentSearch(["alpha", "beta"], " alpha ")).toEqual(["alpha", "beta"]);
+    expect(addRecentSearch(["alpha", "beta"], "gamma", 2)).toEqual(["gamma", "alpha"]);
+    expect(normalizeRecentSearches([" alpha ", "alpha", 42, "", "beta"])).toEqual(["alpha", "beta"]);
   });
 
   it("filters global search results by category", () => {

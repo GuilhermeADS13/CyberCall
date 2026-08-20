@@ -374,3 +374,14 @@
 - [x] Adicionar testes para cada filtro e contagens correspondentes.
 - [x] Validar TypeScript, suíte, build e responsividade.
 - [x] Publicar no GitHub no commit `f08efd0`; checkpoint final pendente.
+
+
+## Histórico de buscas recentes
+
+- [x] Mapear abertura, foco e seleção atuais da busca global.
+- [x] Implementar histórico local limitado e persistente no navegador.
+- [x] Exibir buscas recentes automaticamente ao abrir/focar sem query ativa.
+- [x] Adicionar seleção, remoção individual e limpeza completa do histórico.
+- [x] Adicionar testes de deduplicação, limite, persistência e limpeza.
+- [x] Validar TypeScript, suíte, build e responsividade.
+- [ ] Publicar no GitHub e salvar checkpoint.
