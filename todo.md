@@ -394,4 +394,5 @@
 - [x] Exibir data e canal em cada item com layout responsivo.
 - [x] Adicionar testes de migração, metadados e limpeza do histórico.
 - [x] Validar TypeScript, suíte, build e revisão responsiva.
-- [ ] Publicar no GitHub e salvar checkpoint.
+- [x] Publicar no GitHub no commit `d9df618`.
+- [ ] Salvar checkpoint final da entrega de data e canal.
