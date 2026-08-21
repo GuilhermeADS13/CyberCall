@@ -395,4 +395,4 @@
 - [x] Adicionar testes de migração, metadados e limpeza do histórico.
 - [x] Validar TypeScript, suíte, build e revisão responsiva.
 - [x] Publicar no GitHub no commit `d9df618`.
-- [ ] Salvar checkpoint final da entrega de data e canal.
+- [x] Salvar checkpoint final da entrega de data e canal na versão `17794a5f`.
