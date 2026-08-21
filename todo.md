@@ -385,3 +385,13 @@
 - [x] Adicionar testes de deduplicação, limite, persistência e limpeza.
 - [x] Validar TypeScript, suíte, build e responsividade.
 - [x] Publicar no GitHub no commit `2171816`; checkpoint final pendente.
+
+## Contexto nas buscas recentes
+
+- [x] Mapear o formato atual do histórico e o canal selecionado.
+- [x] Migrar strings antigas para itens com query, data e canal sem perder dados.
+- [x] Registrar a data e o nome do canal ao salvar uma nova busca.
+- [x] Exibir data e canal em cada item com layout responsivo.
+- [x] Adicionar testes de migração, metadados e limpeza do histórico.
+- [x] Validar TypeScript, suíte, build e revisão responsiva.
+- [ ] Publicar no GitHub e salvar checkpoint.

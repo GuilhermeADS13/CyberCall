@@ -69,10 +69,11 @@ describe("CyberCall voice room contract", () => {
     expect(highlightSearchMatches("sem sinal", "")).toEqual([{ text: "sem sinal", matched: false }]);
   });
 
-  it("manages recent searches with deduplication and a safe limit", () => {
-    expect(addRecentSearch(["alpha", "beta"], " alpha ")).toEqual(["alpha", "beta"]);
-    expect(addRecentSearch(["alpha", "beta"], "gamma", 2)).toEqual(["gamma", "alpha"]);
-    expect(normalizeRecentSearches([" alpha ", "alpha", 42, "", "beta"])).toEqual(["alpha", "beta"]);
+  it("migrates and manages recent searches with date and channel context", () => {
+    const migrated = normalizeRecentSearches([" alpha ", "alpha", 42, "", "beta"], 6, "general", 1700000000000);
+    expect(migrated).toEqual([{ query: "alpha", searchedAt: 1700000000000, channelName: "general" }, { query: "beta", searchedAt: 1700000000000, channelName: "general" }]);
+    expect(addRecentSearch(migrated, "gamma", "lobby", 1700000001000, 2)).toEqual([{ query: "gamma", searchedAt: 1700000001000, channelName: "lobby" }, { query: "alpha", searchedAt: 1700000000000, channelName: "general" }]);
+    expect(addRecentSearch(migrated, " alpha ", "lobby", 1700000002000)).toHaveLength(2);
   });
 
   it("filters global search results by category", () => {
